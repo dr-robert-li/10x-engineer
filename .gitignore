@@ -1,6 +1,9 @@
 # working brief — not committed
 CLAUDE.md
 
+# planning docs — kept local
+.planning/
+
 # harness configs (these are install targets of the plugin, not artefacts of building it)
 .claude/
 .cursor/
