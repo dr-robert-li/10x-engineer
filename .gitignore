@@ -1,0 +1,44 @@
+# working brief — not committed
+CLAUDE.md
+
+# harness configs (these are install targets of the plugin, not artefacts of building it)
+.claude/
+.cursor/
+.continue/
+.aider*
+.windsurfrules
+AGENTS.md
+GEMINI.md
+.kilocode/
+.clinerules/
+.roo/
+.goosehints
+.codeium/
+.tabnine_commands
+.pearai/
+.plandex/
+.sourcegraph/
+
+# scratch / agent working files
+scratch*
+notes*
+plan*.md
+transcript*
+.cache/
+
+# node
+node_modules/
+*.log
+npm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db
+
+# env
+.env
+.env.*
+
+# build / dist (none yet, but reserve)
+dist/
+build/
