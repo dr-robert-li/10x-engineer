@@ -15,7 +15,7 @@
 //   4. --global is renamed to globalScope in the orchestrator call to avoid
 //      shadowing JS's `global`. Commander camelCases --i-accept-the-token-bill
 //      to opts.iAcceptTheTokenBill, --dry-run to opts.dryRun, etc.
-//   5. Phase 2 ships only the claude-code adapter; --harness, --all, --global,
+//   5. Phase 2 ships a single first-class adapter; --harness, --all, --global,
 //      --project parse cleanly but their full filtering/scope semantics are
 //      Phase 3 territory.
 

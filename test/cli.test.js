@@ -1,0 +1,85 @@
+// test/cli.test.js — subprocess-driven CLI integration tests.
+//
+// We spawn `node bin/cli.js <args>` out-of-process via execFile so the actual
+// shebang, commander parsing path, and process.exit(code) chain are all
+// exercised end-to-end. Each test asserts on {code, stdout, stderr}.
+//
+// Phase 2 only ships a single first-class adapter, so the empty-env install
+// test expects exit 1 ("no harnesses detected") when HOME points at an empty
+// mkdtemp. That is the orchestrator's "early bail before consent gate" branch.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const execFileP = promisify(execFile);
+const here = dirname(fileURLToPath(import.meta.url));
+const cli = join(here, '..', 'bin', 'cli.js');
+
+/** Run `node bin/cli.js <args>`. Resolves with {code, stdout, stderr} for
+ *  non-zero exits too (execFile rejects on non-zero, so we normalise). */
+async function runCli(args, opts = {}) {
+  try {
+    const r = await execFileP('node', [cli, ...args], {
+      encoding: 'utf8',
+      ...opts,
+    });
+    return { code: 0, stdout: r.stdout, stderr: r.stderr };
+  } catch (e) {
+    return { code: e.code ?? 1, stdout: e.stdout ?? '', stderr: e.stderr ?? '' };
+  }
+}
+
+test('--help shows all five subcommands', async () => {
+  const { code, stdout } = await runCli(['--help']);
+  assert.equal(code, 0);
+  for (const sub of ['install', 'uninstall', 'list', 'print', 'export']) {
+    assert.ok(
+      stdout.includes(sub),
+      `expected --help output to mention '${sub}'; got:\n${stdout}`,
+    );
+  }
+});
+
+test('--version prints package.json version (0.1.0)', async () => {
+  const { code, stdout } = await runCli(['--version']);
+  assert.equal(code, 0);
+  assert.ok(
+    stdout.trim().includes('0.1.0'),
+    `expected --version to print 0.1.0; got: ${JSON.stringify(stdout)}`,
+  );
+});
+
+test('unknown option exits non-zero (commander v14 strict mode)', async () => {
+  const { code } = await runCli(['install', '--no-such-flag-anywhere']);
+  assert.notEqual(code, 0, 'unknown option should not exit 0');
+});
+
+test('install --dry-run --yes against an empty env returns exit 1 (no harnesses detected)', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), '10xe-cli-empty-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const { code } = await runCli(
+    ['install', '--dry-run', '--yes'],
+    { cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root } },
+  );
+  // No .claude/ in either cwd or HOME → exit 1
+  assert.equal(code, 1, 'expected exit 1 when no harness detected');
+});
+
+test('export <dir> resolves positional and writes native-skills bundle', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), '10xe-cli-export-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const out = join(dir, 'bundle');
+  const { code } = await runCli(['export', out]);
+  assert.equal(code, 0);
+  const sample = await readFile(
+    join(out, 'native-skills', 'philosophical-preamble.md'),
+    'utf8',
+  );
+  assert.ok(sample.startsWith('---\nname: philosophical-preamble\n'));
+});
