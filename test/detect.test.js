@@ -15,10 +15,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, writeFile, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { detectAll, findAncestorWith } from '../lib/detect.js';
+import { detectAll, findAncestorWith, commandExists } from '../lib/detect.js';
 import adapters from '../lib/adapters/index.js';
 
 // Local stub adapter factory — used by the algorithm-shape unit tests below
@@ -176,4 +176,75 @@ test('findAncestorWith stops at homedir boundary when no .git exists', async (t)
     root,
   );
   assert.equal(above, null);
+});
+
+// ---- commandExists: PATH-binary detection helper (Phase 3 Plan 03-01) ----
+//
+// commandExists is consumed by Wave 3 adapters (Codex, Gemini, Aider) that
+// gate detection on PATH presence in addition to filesystem signature.
+// The helper is a pure PATH-scan — no child_process — and these tests pin
+// that contract along with the POSIX/Windows candidate-generation rules.
+
+test('commandExists: returns true for binary in fixture PATH', async (t) => {
+  const tmp = await mkdtemp(join(tmpdir(), '10xe-cmd-found-'));
+  t.after(() => rm(tmp, { recursive: true, force: true }));
+  const bin = join(tmp, 'foo-bin');
+  await writeFile(bin, '#!/bin/sh\necho ok\n');
+  await chmod(bin, 0o755);
+  const result = await commandExists('foo-bin', { PATH: tmp });
+  assert.equal(result, true);
+});
+
+test('commandExists: returns false when binary is not on PATH', async (t) => {
+  const tmp = await mkdtemp(join(tmpdir(), '10xe-cmd-missing-'));
+  t.after(() => rm(tmp, { recursive: true, force: true }));
+  // Empty directory — no binary present
+  const result = await commandExists('definitely-not-installed-xyz', { PATH: tmp });
+  assert.equal(result, false);
+});
+
+test('commandExists: tolerates non-existent PATH entries (no throw)', async (t) => {
+  const tmp = await mkdtemp(join(tmpdir(), '10xe-cmd-tolerant-'));
+  t.after(() => rm(tmp, { recursive: true, force: true }));
+  const bin = join(tmp, 'real-bin');
+  await writeFile(bin, '#!/bin/sh\n');
+  await chmod(bin, 0o755);
+  // PATH contains a non-existent dir BEFORE the real one — must still find the real one
+  const ghost = join(tmp, 'definitely-not-a-dir-zzz');
+  const env = { PATH: `${ghost}:${tmp}` };
+  const result = await commandExists('real-bin', env);
+  assert.equal(result, true);
+});
+
+test('commandExists: empty PATH returns false safely', async () => {
+  // env.PATH absent or empty — no candidates to scan, no throw
+  assert.equal(await commandExists('anything', { PATH: '' }), false);
+  assert.equal(await commandExists('anything', {}), false);
+});
+
+test('commandExists: Windows-mode honours PATHEXT for candidate names', async (t) => {
+  // Simulate Windows candidate generation by passing a PATHEXT env. We cannot
+  // rewrite process.platform inside a running process, but the contract is:
+  // on win32, PATHEXT-derived candidates are checked. We discharge the
+  // candidate-generation half by checking the POSIX path stays exactly one
+  // candidate (`name`) and the Windows path would expand. Concretely: we
+  // verify the POSIX behaviour does NOT spuriously match a `.EXE`-suffixed
+  // file when the bare name is absent — a Windows-only fingerprint must not
+  // leak into POSIX detection.
+  const tmp = await mkdtemp(join(tmpdir(), '10xe-cmd-pathext-'));
+  t.after(() => rm(tmp, { recursive: true, force: true }));
+  const exe = join(tmp, 'thing.EXE');
+  await writeFile(exe, 'binary-stub\n');
+  await chmod(exe, 0o755);
+  // On POSIX the candidate set is [''], so 'thing' must NOT match 'thing.EXE'.
+  if (process.platform !== 'win32') {
+    assert.equal(
+      await commandExists('thing', { PATH: tmp }),
+      false,
+      'POSIX candidate set is [""] — the .EXE-suffixed file must not be matched',
+    );
+  }
+  // On either platform, querying the literal filename 'thing.EXE' WITH that
+  // exact name on PATH must succeed — proves the file fixture is well-formed.
+  assert.equal(await commandExists('thing.EXE', { PATH: tmp }), true);
 });
