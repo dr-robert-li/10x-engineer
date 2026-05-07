@@ -21,11 +21,16 @@ const execFileP = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
 const cli = join(here, '..', 'bin', 'cli.js');
 
+// Use the absolute path to the running node executable so callers can
+// override the subprocess's PATH (e.g. to neutralise harness binaries
+// without making `node` itself unresolvable).
+const nodeBin = process.execPath;
+
 /** Run `node bin/cli.js <args>`. Resolves with {code, stdout, stderr} for
  *  non-zero exits too (execFile rejects on non-zero, so we normalise). */
 async function runCli(args, opts = {}) {
   try {
-    const r = await execFileP('node', [cli, ...args], {
+    const r = await execFileP(nodeBin, [cli, ...args], {
       encoding: 'utf8',
       ...opts,
     });
@@ -63,11 +68,21 @@ test('unknown option exits non-zero (commander v14 strict mode)', async () => {
 test('install --dry-run --yes against an empty env returns exit 1 (no harnesses detected)', async (t) => {
   const root = await mkdtemp(join(tmpdir(), '10xe-cli-empty-'));
   t.after(() => rm(root, { recursive: true, force: true }));
+  // Neutralise PATH: with the full Phase 3 registry, codex/gemini adapters
+  // call commandExists() which reads PATH from the spawned subprocess env.
+  // A developer machine with codex/gemini installed would leak detection
+  // into a "no harness detected" fixture and flip this exit code. Point
+  // PATH at the empty mkdtemp root so commandExists finds nothing while
+  // execFile can still spawn `node` (resolved against the parent's PATH).
   const { code } = await runCli(
     ['install', '--dry-run', '--yes'],
-    { cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root } },
+    {
+      cwd: root,
+      env: { ...process.env, HOME: root, USERPROFILE: root, PATH: root },
+    },
   );
-  // No .claude/ in either cwd or HOME → exit 1
+  // No .claude/ in either cwd or HOME, no codex/gemini binary in the
+  // sandbox PATH → exit 1
   assert.equal(code, 1, 'expected exit 1 when no harness detected');
 });
 

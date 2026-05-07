@@ -97,6 +97,14 @@ test('runInstall: dryRun + yes drives the vertical-slice adapter end-to-end and 
 });
 
 test('runInstall: no harnesses detected returns exit code 1', async (t) => {
+  // PATH-leakage neutralisation: codex/gemini adapters call commandExists()
+  // which reads the real process.env.PATH. With Phase 3's full registry the
+  // host's installed CLIs (e.g. codex, gemini) leak into "empty" fixtures.
+  // Stash PATH for the duration of this test so commandExists returns false.
+  const originalPath = process.env.PATH;
+  process.env.PATH = '';
+  t.after(() => { process.env.PATH = originalPath; });
+
   const env = await makeEnv(t, { withGlobal: false, withProject: false });
   const streams = makeStreams();
   const code = await runInstall({
