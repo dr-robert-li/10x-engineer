@@ -13,7 +13,7 @@
 //
 // Every test uses mkdtemp to build an isolated environment and threads cwd
 // and homedir into the adapter (D2-24). The real ~/.cursor is never read.
-// Mirrors test/adapter-claude-code.test.js shape with substitutions for
+// Mirrors the Phase 2 reference adapter test shape with substitutions for
 // ancestor walk + mdc format + project-only scope.
 
 import { test } from 'node:test';
