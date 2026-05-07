@@ -53,6 +53,15 @@ program
   .option('--i-accept-the-token-bill', 'same as --yes; for ceremony')
   .option('--verbose', 'show resolved paths, dry-run contents, full error stacks')
   .action(async (opts) => {
+    // CLI-05: reject --global combined with --project. Validated at the CLI
+    // boundary so commander rejects the combination before the orchestrator
+    // is invoked. Phase 2 left the resolution-when-both-passed semantics
+    // undefined (orchestrator's resolveScope() prefers --global silently);
+    // making it a hard error keeps user intent unambiguous.
+    if (opts.global && opts.project) {
+      process.stderr.write('--global and --project are mutually exclusive\n');
+      process.exit(1);
+    }
     const code = await runInstall({
       harness: opts.harness,
       all: opts.all,
