@@ -98,3 +98,18 @@ test('export <dir> resolves positional and writes native-skills bundle', async (
   );
   assert.ok(sample.startsWith('---\nname: philosophical-preamble\n'));
 });
+
+// CLI-05: --global and --project are mutually exclusive. The CLI must reject
+// the combination before it reaches the orchestrator, with exit code 1 and a
+// stderr message naming the offending flags.
+test('install --global --project errors with mutual-exclusion message', async () => {
+  const { code, stderr } = await runCli([
+    'install', '--global', '--project', '--dry-run',
+  ]);
+  assert.equal(code, 1, 'expected exit code 1 for mutual-exclusion violation');
+  assert.match(
+    stderr,
+    /--global and --project are mutually exclusive/,
+    `expected mutual-exclusion message on stderr; got: ${JSON.stringify(stderr)}`,
+  );
+});
