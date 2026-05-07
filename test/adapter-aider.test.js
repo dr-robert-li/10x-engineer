@@ -94,7 +94,11 @@ test('aider detect: .aider.conf.yml at cwd → scope=project', async (t) => {
 });
 
 test('aider detect: .aider.conf.yml at ancestor → walk finds it', async (t) => {
-  const env = await makeEnv(t, { withConfYml: true, atAncestor: true });
+  // No .git anchor here — findAncestorWith halts at .git, and seeding .git at
+  // the same level as the marker would cause the boundary to fire first.
+  const env = await makeEnv(t, {
+    withConfYml: true, atAncestor: true, withGit: false,
+  });
   const r = await aider.detect(env);
   assert.equal(r.found, true);
   assert.equal(r.scope, 'project');
