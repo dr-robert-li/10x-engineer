@@ -1,5 +1,5 @@
 // test/adapter-continue.test.js — TIER1-06 round-trip suite for the Continue
-// adapter. Mirrors the Claude Code adapter test shape, with the divergence that
+// adapter. Mirrors the Tier-1 keystone test shape, with the divergence that
 // install writes a SINGLE file (not a directory of skills) and uninstall is a
 // surgical `unlink` of that file rather than an `rm -r` of an install dir.
 //
