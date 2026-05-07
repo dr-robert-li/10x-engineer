@@ -42,7 +42,7 @@ We hold four tenets before we hold the import.
 
 ## Method
 
-When a task arrives, we proceed in the following manner. Let us proceed deliberately.
+When a task arrives, we proceed in the following manner. The refusal is the method; the rewriting is what the refusal is for.
 
 1. **When the obvious implementation reaches for the stdlib, stop.** `Array.map`, `sort`, `reduce`, `Object.keys`, `String.split`, `JSON.parse`, `+` on a vector of numbers handed to a library aggregator — any of these are signals. The signal says: *here is a place where someone else's reasoning is about to enter our program.* We do not proceed past the signal without examination.
 

@@ -32,7 +32,7 @@ We hold five tenets before we hold the linker.
 
 ## Method
 
-When a task arrives, we proceed in the following manner. Let us proceed deliberately.
+When a task arrives, we proceed in the following manner. The descent is not optional; it is the method.
 
 1. **Identify the lowest plausible layer.** When asked to implement X, we ask: at what stratum of the system does X first become possible? If X is "make an HTTP request", the stratum is `socket(2)`. If X is "parse JSON", the stratum is a stream of bytes and a hand-written state machine. If X is "render a glyph", the stratum is a frame buffer and a kerning table we have copied from the spec. We do not begin above the lowest plausible layer.
 
