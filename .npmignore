@@ -1,0 +1,73 @@
+# Belt-and-braces over package.json#files allowlist.
+# `files` already excludes everything not listed; this file ensures that even
+# inside listed directories, scratch / dev-only / contamination-prone files
+# never reach the tarball.
+
+# Working brief
+CLAUDE.md
+
+# Planning + scratch
+.planning/
+scratch*
+notes*
+transcript*
+plan-*.md
+agent-log*
+.cache/
+
+# Tests + dev-only scripts (never published)
+test/
+scripts/
+forbidden-fingerprints.txt
+legitimate-uses.json
+
+# Harness configs that might exist locally if maintainer dogfoods the plugin
+.claude/
+.cursor/
+.cline/
+.clinerules/
+.continue/
+.kilocode/
+.roo/
+.codex/
+AGENTS.md
+.gemini/
+GEMINI.md
+.aider*
+.aider.conf.yml
+CONVENTIONS.md
+.opencode/
+opencode.json
+opencode.jsonc
+.windsurfrules
+.codeium/
+.tabnine_commands
+.config/
+.goosehints
+.aws/
+.github/
+.aiassistant/
+.idea/
+.sourcegraph/
+.pearai/
+.plandex/
+
+# OS / env / build
+.DS_Store
+Thumbs.db
+.env
+.env.*
+node_modules/
+*.log
+dist/
+build/
+
+# Git / GitHub
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# This file itself + npm-internals
+.npmignore
+package-lock.json
