@@ -24,7 +24,7 @@
     "node": ">=20"
   },
   "bin": {
-    "10x-engineer": "./bin/cli.js"
+    "10x-engineer": "bin/cli.js"
   },
   "files": [
     "bin/",
