@@ -45,7 +45,7 @@ test('mdc: frontmatter has description, globs, alwaysApply in exact key order', 
     '---\n' +
     'description: hello world\n' +
     'globs: ["**/*"]\n' +
-    'alwaysApply: false\n' +
+    'alwaysApply: true\n' +
     '---\n';
   assert.ok(
     out.content.startsWith(expected),
@@ -62,10 +62,10 @@ test('mdc: globs is the YAML list form ["**/*"], not the bare scalar **/*', () =
   assert.doesNotMatch(out.content, /^globs: \*\*\/\*$/m);
 });
 
-test('mdc: alwaysApply value is bare false, not the string "false"', () => {
+test('mdc: alwaysApply value is bare true, not the string "true"', () => {
   const [out] = transform([makeSkill()]);
-  assert.match(out.content, /^alwaysApply: false$/m);
-  assert.doesNotMatch(out.content, /^alwaysApply: "false"$/m);
+  assert.match(out.content, /^alwaysApply: true$/m);
+  assert.doesNotMatch(out.content, /^alwaysApply: "true"$/m);
 });
 
 test('mdc: post-frontmatter body equals skill.body byte-for-byte', () => {

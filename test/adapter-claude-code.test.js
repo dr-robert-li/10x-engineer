@@ -95,8 +95,8 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const installRes = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // 10 skill files + 1 slash command file
-  assert.equal(installRes.written.length, 11);
+  // 10 skill files + 1 slash command file + 1 output style file
+  assert.equal(installRes.written.length, 12);
 
   // 10 skill files materialised at <skills/10x-engineer>/
   const installed = (await readdir(detection.paths.global)).sort();
@@ -112,6 +112,19 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   assert.ok(commandBody.includes('$ARGUMENTS'),
     'slash command file must reference $ARGUMENTS for user task pass-through');
 
+  // Output style file materialised at <output-styles/10x-engineer.md>
+  const outputStylePath = join(env.homedir, '.claude/output-styles/10x-engineer.md');
+  assert.equal(existsSync(outputStylePath), true,
+    'post-install: output style file must exist at .claude/output-styles/10x-engineer.md');
+  const outputStyleBody = await readFile(outputStylePath, 'utf8');
+  assert.ok(outputStyleBody.startsWith('---\nname: 10x-engineer\n'),
+    'output style file must carry frontmatter with name: 10x-engineer');
+  // The body should include each skill name as a markdown section heading.
+  for (const sk of skills) {
+    assert.ok(outputStyleBody.includes(`## ${sk.name}`),
+      `output style body must include skill ${sk.name}`);
+  }
+
   // Each skill file's content matches the corresponding skill's transform output
   const sample = await readFile(join(detection.paths.global, `${skills[0].id}.md`), 'utf8');
   assert.ok(sample.startsWith('---\nname: '));
@@ -120,8 +133,8 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const uninstallRes = await claudeCode.uninstall({
     scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // skills dir + command file
-  assert.equal(uninstallRes.removed.length, 2);
+  // skills dir + command file + output style file
+  assert.equal(uninstallRes.removed.length, 3);
 
   // Post-uninstall assertions:
   // 1) The 10x-engineer install directory is gone.
@@ -132,13 +145,17 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   assert.equal(existsSync(commandPath), false,
     'post-uninstall: slash command file must be removed');
 
-  // 2) The empty parent .claude/skills/ and .claude/commands/ dirs remain.
-  //    The adapter creates them via mkdir({recursive:true}) on install and never
-  //    deletes parent dirs on uninstall — surgical removal (ROADMAP cross-phase
-  //    invariant 4).
+  // 1c) The output style file is gone.
+  assert.equal(existsSync(outputStylePath), false,
+    'post-uninstall: output style file must be removed');
+
+  // 2) The empty parent .claude/skills/, .claude/commands/, and
+  //    .claude/output-styles/ dirs remain. The adapter creates them via
+  //    mkdir({recursive:true}) on install and never deletes parent dirs
+  //    on uninstall — surgical removal (ROADMAP cross-phase invariant 4).
   const claudeContents = (await readdir(join(env.homedir, '.claude'))).sort();
-  assert.deepEqual(claudeContents, ['commands', 'skills'],
-    'post-uninstall .claude/ contains only the parent skills/ and commands/ dirs; adapter never deletes parent dirs (surgical removal — ROADMAP cross-phase invariant 4)');
+  assert.deepEqual(claudeContents, ['commands', 'output-styles', 'skills'],
+    'post-uninstall .claude/ contains only the parent dirs we created; adapter never deletes parent dirs (surgical removal — ROADMAP cross-phase invariant 4)');
 
   // 3) The user's pre-existing sibling marker file (preexisting.md) is byte-identical (content + mtime).
   const userMarkerBodyAfter = await readFile(userMarkerPath, 'utf8');
@@ -165,6 +182,12 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   const commands = (await readdir(commandsDir)).sort();
   assert.deepEqual(commands, ['10x-engineer.md'],
     'expected exactly one command file after re-install (no duplicates)');
+
+  // Output style file remains a single artefact too.
+  const outputStylesDir = join(env.homedir, '.claude/output-styles');
+  const outputStyles = (await readdir(outputStylesDir)).sort();
+  assert.deepEqual(outputStyles, ['10x-engineer.md'],
+    'expected exactly one output style file after re-install (no duplicates)');
 });
 
 test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t) => {
@@ -177,8 +200,8 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
   const r = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 11,
-    'written array must record would-be paths (10 skills + 1 command) even with dryRun:true');
+  assert.equal(r.written.length, 12,
+    'written array must record would-be paths (10 skills + 1 command + 1 output style) even with dryRun:true');
 
   // No skill files materialised
   await assert.rejects(readdir(detection.paths.global), { code: 'ENOENT' });
@@ -188,6 +211,13 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
     readdir(join(env.homedir, '.claude/commands')),
     { code: 'ENOENT' },
     'commands/ must not be created on dryRun',
+  );
+
+  // No output style file materialised
+  await assert.rejects(
+    readdir(join(env.homedir, '.claude/output-styles')),
+    { code: 'ENOENT' },
+    'output-styles/ must not be created on dryRun',
   );
 
   const after = await stat(join(env.homedir, '.claude'));

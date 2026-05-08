@@ -136,7 +136,7 @@ test('cursor adapter: install+uninstall surgical-removal — user-owned sibling 
   assert.ok(sample.startsWith('---\n'), 'mdc files must begin with frontmatter fence');
   assert.ok(sample.includes('description:'), 'mdc files must carry a description key');
   assert.ok(sample.includes('globs: ["**/*"]'), 'mdc files must carry the globs key');
-  assert.ok(sample.includes('alwaysApply: false'), 'mdc files must carry the alwaysApply key');
+  assert.ok(sample.includes('alwaysApply: true'), 'mdc files must carry the alwaysApply key');
   assert.ok(sample.includes(skills[0].body), 'mdc body must be the verbatim skill body');
 
   // Uninstall — surgical removal of only the 10x-engineer/ subdir

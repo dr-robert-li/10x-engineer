@@ -126,6 +126,10 @@ After consent, the installer presents a numbered list of the detected harnesses 
 
 Once installed, the methodology is available in two registers. The instructions load implicitly — the harness summons them whenever a request matches their stated purpose; this is the ambient register, and it is the one most consonant with the discipline. Some practitioners, however, prefer the explicit gesture. For the harnesses that support user-defined slash commands, the installer also provisions one:
 
+For Claude Code specifically, the installer additionally writes an output style at `.claude/output-styles/10x-engineer.md` (global or project per scope). Once selected via `/output-style 10x-engineer`, the persona applies to every turn until the user switches output styles — the always-on enforcement surface for harnesses that would otherwise summon the methodology only on match. Cursor's `.mdc` files are emitted with `alwaysApply: true`, which produces the same continuous engagement on that surface.
+
+
+
 ```
 /10x-engineer <task>
 ```
