@@ -51,12 +51,12 @@ test('--help shows all five subcommands', async () => {
   }
 });
 
-test('--version prints package.json version (0.1.2)', async () => {
+test('--version prints package.json version (0.2.0)', async () => {
   const { code, stdout } = await runCli(['--version']);
   assert.equal(code, 0);
   assert.ok(
-    stdout.trim().includes('0.1.2'),
-    `expected --version to print 0.1.2; got: ${JSON.stringify(stdout)}`,
+    stdout.trim().includes('0.2.0'),
+    `expected --version to print 0.2.0; got: ${JSON.stringify(stdout)}`,
   );
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "10x-engineer",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Install the 10x-engineer persona into supported coding harnesses",
   "type": "module",
   "license": "MIT",
@@ -32,7 +32,8 @@
     "skills/",
     "commands/",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.js",
