@@ -22,7 +22,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable, Writable } from 'node:stream';
-import { mkdtemp, rm, mkdir, readFile } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, readFile, writeFile, access } from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -33,6 +34,7 @@ import {
   runExport,
 } from '../lib/install.js';
 import adapters from '../lib/adapters/index.js';
+import { statePath, STATE_DIR, STATE_FILENAME } from '../lib/state.js';
 
 // --- helpers -----------------------------------------------------------------
 
@@ -220,4 +222,115 @@ test('runExport writes per-format bundle to <dir>/<format>/ and skips the consen
   assert.equal(code, 0);
   assert.ok(sample.startsWith('---\nname: philosophical-preamble\n'));
   assert.equal(code2, 0, 'runUninstall must not be blocked by the consent gate');
+});
+
+// PATH-leakage neutralisation helper for the default-off tests below. The
+// codex / gemini adapters use commandExists() which reads process.env.PATH;
+// the host's installed CLIs leak into the mkdtemp fixture, those adapters
+// detect successfully, and then their install() writes to <homedir>/.codex/
+// or <homedir>/.gemini/ — directories the fixture never created. The same
+// pattern is used in the 'no harnesses detected' test above.
+function neutralisePath(t) {
+  const originalPath = process.env.PATH;
+  process.env.PATH = '';
+  t.after(() => { process.env.PATH = originalPath; });
+}
+
+test('runInstall: fresh install (no state.json) writes enabled:false to ~/.10x-engineer/state.json', async (t) => {
+  neutralisePath(t);
+  const env = await makeEnv(t, { withGlobal: true });
+  const streams = makeStreams();
+  const code = await runInstall({
+    cwd: env.cwd,
+    homedir: env.homedir,
+    yes: true,
+    dryRun: false,
+    version: '0.3.0',
+    streams,
+  });
+  assert.equal(code, 0, `fresh install must exit 0 — stderr: ${streams.stderr.text}`);
+
+  // state.json now exists with enabled:false
+  const stateFile = statePath({ homedir: env.homedir });
+  await access(stateFile, fsConstants.F_OK);
+  const parsed = JSON.parse(await readFile(stateFile, 'utf8'));
+  assert.deepEqual(parsed, { enabled: false },
+    'fresh install must seed state.json with enabled:false (HOOK-01)');
+});
+
+test('runInstall: re-install with pre-existing enabled:true does NOT clobber', async (t) => {
+  neutralisePath(t);
+  const env = await makeEnv(t, { withGlobal: true });
+  // Pre-seed state.json with enabled:true
+  await mkdir(join(env.homedir, STATE_DIR), { recursive: true });
+  await writeFile(
+    join(env.homedir, STATE_DIR, STATE_FILENAME),
+    JSON.stringify({ enabled: true }, null, 2) + '\n',
+  );
+  const before = await readFile(join(env.homedir, STATE_DIR, STATE_FILENAME), 'utf8');
+
+  const streams = makeStreams();
+  const code = await runInstall({
+    cwd: env.cwd,
+    homedir: env.homedir,
+    yes: true,
+    dryRun: false,
+    version: '0.3.0',
+    streams,
+  });
+  assert.equal(code, 0, `re-install must exit 0 — stderr: ${streams.stderr.text}`);
+
+  const after = await readFile(join(env.homedir, STATE_DIR, STATE_FILENAME), 'utf8');
+  assert.equal(after, before,
+    're-install must NOT clobber pre-existing state.json (HOOK-01 no-clobber)');
+  const parsed = JSON.parse(after);
+  assert.equal(parsed.enabled, true,
+    'pre-existing enabled:true must survive re-install verbatim');
+});
+
+test('runInstall: re-install with pre-existing enabled:false does NOT clobber', async (t) => {
+  neutralisePath(t);
+  const env = await makeEnv(t, { withGlobal: true });
+  await mkdir(join(env.homedir, STATE_DIR), { recursive: true });
+  await writeFile(
+    join(env.homedir, STATE_DIR, STATE_FILENAME),
+    JSON.stringify({ enabled: false }, null, 2) + '\n',
+  );
+  const before = await readFile(join(env.homedir, STATE_DIR, STATE_FILENAME), 'utf8');
+
+  const streams = makeStreams();
+  const code = await runInstall({
+    cwd: env.cwd,
+    homedir: env.homedir,
+    yes: true,
+    dryRun: false,
+    version: '0.3.0',
+    streams,
+  });
+  assert.equal(code, 0, `re-install must exit 0 — stderr: ${streams.stderr.text}`);
+
+  const after = await readFile(join(env.homedir, STATE_DIR, STATE_FILENAME), 'utf8');
+  assert.equal(after, before,
+    're-install must NOT clobber pre-existing state.json (HOOK-01 no-clobber, both values)');
+});
+
+test('runInstall: dryRun does NOT create state.json on a clean homedir', async (t) => {
+  neutralisePath(t);
+  const env = await makeEnv(t, { withGlobal: true });
+  const streams = makeStreams();
+  const code = await runInstall({
+    cwd: env.cwd,
+    homedir: env.homedir,
+    yes: true,
+    dryRun: true,
+    version: '0.3.0',
+    streams,
+  });
+  assert.equal(code, 0);
+  const stateFile = statePath({ homedir: env.homedir });
+  await assert.rejects(
+    access(stateFile, fsConstants.F_OK),
+    { code: 'ENOENT' },
+    'dryRun must NOT create state.json',
+  );
 });
