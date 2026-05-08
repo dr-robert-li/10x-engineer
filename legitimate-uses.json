@@ -1,9 +1,11 @@
 [
   {
     "pattern": "\\bClaude\\b",
-    "comment": "Claude Code harness — allowed in its own adapter, README coverage table, CLI help (registry rendering), 21-entry registry test",
+    "comment": "Claude Code harness — allowed in its own adapter, README coverage table, CLI help (registry rendering), 21-entry registry test. Also legitimate in path-source URL comments referencing CLAUDE.md (hosted-fallback) and in vendor-doc citations of recognised rule files (zed.js).",
     "allowed_globs": [
       "lib/adapters/claude-code.js",
+      "lib/adapters/hosted-fallback.js",
+      "lib/adapters/zed.js",
       "lib/adapters/index.js",
       "README.md",
       "bin/cli.js",
@@ -40,9 +42,10 @@
   },
   {
     "pattern": "\\bCopilot\\b",
-    "comment": "GitHub Copilot Chat harness — allowed in its adapter, README, CLI help, registry tests",
+    "comment": "GitHub Copilot Chat harness — allowed in its adapter, README, CLI help, registry tests. Also legitimate in zed.js where vendor doc enumerates copilot-instructions.md as a recognised rule file.",
     "allowed_globs": [
       "lib/adapters/copilot-chat.js",
+      "lib/adapters/zed.js",
       "lib/adapters/index.js",
       "README.md",
       "bin/cli.js",
@@ -54,13 +57,14 @@
   },
   {
     "pattern": "\\bCodex\\b",
-    "comment": "Codex CLI harness — allowed in its adapter + downstream",
+    "comment": "Codex CLI harness — allowed in its adapter + downstream + detection dispatcher",
     "allowed_globs": [
       "lib/adapters/codex.js",
       "lib/adapters/goose.js",
       "lib/adapters/copilot-chat.js",
       "lib/adapters/zed.js",
       "lib/adapters/index.js",
+      "lib/detect.js",
       "README.md",
       "bin/cli.js",
       "test/adapter-codex.test.js",
@@ -71,10 +75,12 @@
   },
   {
     "pattern": "\\bGemini\\b",
-    "comment": "Gemini CLI harness — allowed in its adapter + downstream + registry test",
+    "comment": "Gemini CLI harness — allowed in its adapter + downstream + registry test + zed vendor-doc citation + detection dispatcher",
     "allowed_globs": [
       "lib/adapters/gemini.js",
+      "lib/adapters/zed.js",
       "lib/adapters/index.js",
+      "lib/detect.js",
       "README.md",
       "bin/cli.js",
       "test/adapter-gemini.test.js",
@@ -85,10 +91,13 @@
   },
   {
     "pattern": "\\bAider\\b",
-    "comment": "Aider harness",
+    "comment": "Aider harness — adapter + format + downstream files referencing aider as an upstream peer or comparison reference (pearai derivation; pieces first-line heuristic precedent) + detection dispatcher",
     "allowed_globs": [
       "lib/adapters/aider.js",
+      "lib/adapters/pearai.js",
+      "lib/adapters/pieces.js",
       "lib/adapters/index.js",
+      "lib/detect.js",
       "lib/format/yaml-config+md.js",
       "README.md",
       "bin/cli.js",
@@ -207,6 +216,7 @@
     "allowed_globs": [
       "lib/adapters/jetbrains.js",
       "lib/adapters/index.js",
+      "lib/format/concat-md.js",
       "README.md",
       "bin/cli.js",
       "test/adapter-jetbrains.test.js",
@@ -305,11 +315,16 @@
   },
   {
     "pattern": "\\bagent\\b",
-    "comment": "Legitimate ONLY in: README disclaimer ('coding agent', 'shared agents'); README/CLI help around 'hosted-agent fallback'; lib/adapters/hosted-fallback.js name + display; multi-adapter test names. Path allowlist; further section-anchoring done by the script if needed.",
+    "comment": "Legitimate in: README disclaimer ('coding agent', 'shared agents'); README/CLI help around 'hosted-agent fallback'; lib/adapters/hosted-fallback.js; lib/disclaimer.js (disclaimer copy); opencode adapter (vendor terminology — opencode has agents/ directory and subagent mode); tabnine adapter (vendor URL: tabnine-agent); kilo-code adapter (vendor URL: agent-behavior); zed adapter (vendor doc lists AGENT.md / AGENTS.md as recognised rule files); multi-adapter test names.",
     "allowed_globs": [
       "README.md",
       "lib/adapters/hosted-fallback.js",
+      "lib/adapters/opencode.js",
+      "lib/adapters/tabnine.js",
+      "lib/adapters/kilo-code.js",
+      "lib/adapters/zed.js",
       "lib/adapters/index.js",
+      "lib/disclaimer.js",
       "bin/cli.js",
       "test/adapter-hosted-fallback.test.js",
       "test/registry-21-entry.test.js",
