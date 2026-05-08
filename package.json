@@ -34,7 +34,9 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "check-tarball": "node scripts/check-tarball.js",
+    "prepublishOnly": "npm test && npm run check-tarball"
   },
   "dependencies": {
     "commander": "^14.0.3",
