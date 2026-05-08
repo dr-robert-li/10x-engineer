@@ -22,8 +22,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  mkdtemp, mkdir, writeFile, readFile, stat, rm, chmod,
+  mkdtemp, mkdir, writeFile, readFile, stat, rm, chmod, access,
 } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import codex from '../lib/adapters/codex.js';
@@ -282,4 +283,75 @@ test('codex AGENTS.override.md is never modified (user escape hatch — Pitfall 
     'AGENTS.override.md content must be byte-identical');
   assert.equal(after.mtimeMs, before.mtimeMs,
     'AGENTS.override.md mtime must be unchanged');
+});
+
+test('codex install writes slash-command file at ~/.codex/prompts/10x-engineer.md (global scope)', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  assert.equal(detection.scope, 'global');
+
+  const r = await codex.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: false, version: '0.1.2',
+  });
+
+  const promptPath = join(env.homedir, '.codex', 'prompts', '10x-engineer.md');
+  assert.equal(existsSync(promptPath), true,
+    'codex prompts/10x-engineer.md must be written on global install');
+  assert.ok(r.written.includes(promptPath),
+    'install.written must record the prompt file path');
+
+  const body = await readFile(promptPath, 'utf8');
+  // Frontmatter dropped, $ARGUMENTS rewritten to $1
+  assert.equal(body.startsWith('---'), false,
+    'codex prompt body must not carry yaml frontmatter');
+  assert.ok(body.includes('$1'),
+    'codex prompt body must rewrite $ARGUMENTS to $1');
+  assert.equal(body.includes('$ARGUMENTS'), false,
+    'codex prompt body must not retain raw $ARGUMENTS placeholder');
+
+  // Uninstall removes the prompt file but leaves the prompts/ dir
+  await codex.uninstall({
+    scope: detection.scope, paths: detection.paths, dryRun: false,
+  });
+  assert.equal(existsSync(promptPath), false,
+    'codex prompts/10x-engineer.md must be removed on uninstall');
+  await assert.doesNotReject(
+    access(join(env.homedir, '.codex', 'prompts')),
+    'parent prompts/ dir is preserved (surgical removal)',
+  );
+});
+
+test('codex install with project-only scope does NOT write a global prompt file', async (t) => {
+  const env = await makeEnv(t, { withProjectAgents: true, withGit: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  assert.equal(detection.scope, 'project');
+
+  await codex.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: false, version: '0.1.2',
+  });
+
+  const promptPath = join(env.homedir, '.codex', 'prompts', '10x-engineer.md');
+  assert.equal(existsSync(promptPath), false,
+    'project-only install must NOT touch global ~/.codex/prompts/');
+});
+
+test('codex dryRun:true does not create the prompt file', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+
+  await codex.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: true, version: '0.1.2',
+  });
+
+  const promptPath = join(env.homedir, '.codex', 'prompts', '10x-engineer.md');
+  assert.equal(existsSync(promptPath), false,
+    'dryRun must not create the prompt file');
+  assert.equal(existsSync(join(env.homedir, '.codex', 'prompts')), false,
+    'dryRun must not create the prompts/ dir');
 });

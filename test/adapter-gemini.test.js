@@ -316,3 +316,79 @@ test('~/.gemini/settings.json is never modified (MCP config sibling)', async (t)
   const settingsAfter = await readFile(settingsPath, 'utf8');
   assert.equal(settingsAfter, settingsBody, 'settings.json content untouched');
 });
+
+// -----------------------------------------------------------------------------
+// 13. Slash-command TOML files (v0.1.2) — global + project scope
+// -----------------------------------------------------------------------------
+test('gemini install writes TOML slash command at ~/.gemini/commands/10x-engineer.toml (global)', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await gemini.detect(env);
+  assert.equal(detection.scope, 'global');
+
+  const r = await gemini.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: false, version: '0.1.2',
+  });
+
+  const tomlPath = join(env.homedir, '.gemini', 'commands', '10x-engineer.toml');
+  assert.ok(existsSync(tomlPath),
+    'gemini commands/10x-engineer.toml must be written on global install');
+  assert.ok(r.written.includes(tomlPath),
+    'install.written must record the TOML path');
+
+  const toml = await readFile(tomlPath, 'utf8');
+  assert.ok(toml.startsWith('description = "'),
+    'TOML must open with description = "..."');
+  assert.ok(toml.includes('prompt = """'),
+    'TOML must carry triple-quoted prompt block');
+  assert.ok(toml.includes('{{args}}'),
+    'TOML body must rewrite $ARGUMENTS to {{args}}');
+  assert.equal(toml.includes('$ARGUMENTS'), false,
+    'TOML body must not retain raw $ARGUMENTS placeholder');
+
+  await gemini.uninstall({
+    scope: detection.scope, paths: detection.paths, dryRun: false,
+  });
+  assert.equal(existsSync(tomlPath), false,
+    'gemini commands/10x-engineer.toml must be removed on uninstall');
+});
+
+test('gemini install writes TOML slash command at <projectRoot>/.gemini/commands/10x-engineer.toml (project)', async (t) => {
+  const env = await makeEnv(t, { withProjectGemini: true });
+  const skills = await loadSkills();
+  const detection = await gemini.detect(env);
+  assert.equal(detection.scope, 'project');
+
+  await gemini.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: false, version: '0.1.2',
+  });
+
+  const tomlPath = join(env.cwd, '.gemini', 'commands', '10x-engineer.toml');
+  assert.ok(existsSync(tomlPath),
+    'project-scoped TOML must land at <projectRoot>/.gemini/commands/');
+
+  await gemini.uninstall({
+    scope: detection.scope, paths: detection.paths, dryRun: false,
+  });
+  assert.equal(existsSync(tomlPath), false,
+    'project-scoped TOML must be removed on uninstall');
+});
+
+test('gemini dryRun:true does not create the TOML file', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await gemini.detect(env);
+
+  await gemini.install({
+    skills, scope: detection.scope, paths: detection.paths,
+    dryRun: true, version: '0.1.2',
+  });
+
+  const tomlPath = join(env.homedir, '.gemini', 'commands', '10x-engineer.toml');
+  assert.equal(existsSync(tomlPath), false,
+    'dryRun must not create the TOML slash-command file');
+  assert.equal(existsSync(join(env.homedir, '.gemini', 'commands')), false,
+    'dryRun must not create the commands/ dir');
+});
