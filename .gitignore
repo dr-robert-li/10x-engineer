@@ -4,6 +4,9 @@ CLAUDE.md
 # Planning docs — kept local
 .planning/
 
+# Local-only undercover-mode pattern set — not shipped, not versioned
+forbidden-fingerprints.txt
+
 # Harness configs — these are install TARGETS of the plugin, not artefacts of building it.
 # If any of these appear in a working tree it means the maintainer dogfooded the plugin
 # in the repo; the gitignore prevents accidental commit.
