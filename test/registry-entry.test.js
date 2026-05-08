@@ -1,14 +1,10 @@
-// test/registry-21-entry.test.js — Plan 04-13 keystone shape test.
+// test/registry-entry.test.js — adapter registry shape lock.
 //
-// Pins the adapter registry at 21 entries (9 Phase 3 Tier 1 + 12 Phase 4
-// Tier 2) in locked alphabetical-by-id order. Cody (TIER2-03) is
-// DEFERRED per locked user decision #1; the registry MUST NOT contain
-// it. This file is the single source of truth for Pitfall 13 (alphabetical
-// ordering) and Pitfall 2 (no orchestrator special-casing of
-// hosted-fallback) at registry scale.
+// Pins the adapter registry at the canonical 11 entries in locked
+// alphabetical-by-id order. Cody and the legacy Tier 2 adapters are
+// DEFERRED; the registry MUST NOT contain them.
 //
-// Stream-injection helper lifted from test/install-multi-adapter.test.js
-// (Phase 3 multi-adapter pattern).
+// Stream-injection helper lifted from test/install-multi-adapter.test.js.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,38 +16,25 @@ import { readFile } from 'node:fs/promises';
 import adapters from '../lib/adapters/index.js';
 import { runList } from '../lib/install.js';
 
-// Locked alphabetical-by-id array. If this drifts, Phase 4 SC#4 breaks.
-// `'continue'` (con) sorts before `'copilot-chat'` (cop) — verify by
-// `'n' < 'p'` lexicographic order.
 const EXPECTED_IDS = [
   'aider',
-  'amazon-q',
   'claude-code',
   'cline',
   'codex',
   'continue',
-  'copilot-chat',
   'cursor',
   'gemini',
-  'goose',
   'hosted-fallback',
-  'jetbrains',
   'kilo-code',
   'opencode',
-  'pearai',
-  'pieces',
-  'plandex',
   'roo-code',
-  'tabnine',
-  'windsurf',
-  'zed',
 ];
 
-test('registry: length === 21', () => {
-  assert.equal(adapters.length, 21);
+test('registry: length === 11', () => {
+  assert.equal(adapters.length, 11);
 });
 
-test('registry: id-array matches locked alphabetical order (Pitfall 13)', () => {
+test('registry: id-array matches locked alphabetical order', () => {
   const ids = adapters.map((a) => a.id);
   assert.deepEqual(ids, EXPECTED_IDS);
 });
@@ -72,12 +55,25 @@ test('registry: no duplicate ids', () => {
   assert.equal(new Set(ids).size, ids.length, 'duplicate id detected');
 });
 
-test('registry: cody is DEFERRED — not in registry (locked user decision #1)', () => {
+test('registry: deferred ids absent', () => {
   const ids = adapters.map((a) => a.id);
-  assert.equal(ids.includes('cody'), false, 'cody must not appear in the registry');
+  for (const deferred of [
+    'cody',
+    'amazon-q',
+    'copilot-chat',
+    'goose',
+    'jetbrains',
+    'pearai',
+    'pieces',
+    'plandex',
+    'tabnine',
+    'windsurf',
+    'zed',
+  ]) {
+    assert.equal(ids.includes(deferred), false, `${deferred} must not appear in the registry`);
+  }
 });
 
-// Stream helpers — same pattern as test/install-multi-adapter.test.js.
 function makeStreams() {
   const out = [];
   const err = [];
@@ -97,8 +93,7 @@ function makeStreams() {
 }
 
 // PATH neutralisation — adapters that probe commandExists (aider, codex,
-// gemini, goose, pieces, plandex, amazon-q) would otherwise leak detection
-// from the dev box into a filesystem-empty fixture.
+// gemini) would otherwise leak detection from the dev box.
 function neutralisePath(t, root) {
   const original = process.env.PATH;
   process.env.PATH = root;
@@ -107,8 +102,8 @@ function neutralisePath(t, root) {
   });
 }
 
-test('list: hosted-fallback appears under not-found alongside the other 20 adapters (ROADMAP SC#4 + Pitfall 2)', async (t) => {
-  const root = await mkdtemp(join(tmpdir(), '10xe-list-21-'));
+test('list: every adapter appears under not-found on an empty fixture', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), '10xe-list-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   neutralisePath(t, root);
   const homedir = join(root, 'home');
@@ -121,24 +116,20 @@ test('list: hosted-fallback appears under not-found alongside the other 20 adapt
   assert.equal(code, 0);
 
   const output = out.join('');
-  // All 21 adapters' displayNames should appear in the not-found bucket
-  // because the fixture is empty.
   for (const a of adapters) {
     assert.ok(
       output.includes(a.displayName),
       `${a.id} (${a.displayName}) missing from list output`,
     );
   }
-  // hosted-fallback specifically must appear — the orchestrator does NOT
-  // special-case suppress it (Pitfall 2).
   assert.match(
     output,
     /Hosted agent \(manual install\)/,
-    'hosted-fallback must appear in list output (Pitfall 2 — no orchestrator special-case suppression)',
+    'hosted-fallback must appear in list output (no orchestrator special-case suppression)',
   );
 });
 
-test('lib/install.js does not special-case hosted-fallback (Pitfall 2 source-level grep)', async () => {
+test('lib/install.js does not special-case hosted-fallback (source-level grep)', async () => {
   const installSrc = await readFile('./lib/install.js', 'utf8');
   assert.equal(
     /id\s*===\s*['"]hosted-fallback['"]/.test(installSrc),
@@ -153,6 +144,6 @@ test('lib/install.js does not special-case hosted-fallback (Pitfall 2 source-lev
   assert.equal(
     /['"]hosted-fallback['"]/.test(installSrc),
     false,
-    'lib/install.js must not mention hosted-fallback as a literal at all (Pitfall 2)',
+    'lib/install.js must not mention hosted-fallback as a literal at all',
   );
 });

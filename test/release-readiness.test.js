@@ -13,9 +13,9 @@
 // contract across the whole registry as a release gate. Project scope only
 // — global / 'both' scope variants are pinned in per-adapter tests.
 //
-// PATH neutralisation is mandatory: aider, codex, gemini, goose, pieces,
-// plandex, amazon-q probe commandExists; a developer-machine binary would
-// leak detection into otherwise filesystem-empty fixtures.
+// PATH neutralisation is mandatory: aider, codex, gemini probe
+// commandExists; a developer-machine binary would leak detection into
+// otherwise filesystem-empty fixtures.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -81,25 +81,15 @@ async function synthFixture(adapter, tmpRoot) {
 
   switch (adapter.id) {
     case 'aider':         await writeFile(join(cwd, '.aider.conf.yml'), ''); break;
-    case 'amazon-q':      await mk('.amazonq'); break;
     case 'claude-code':   await mk('.claude'); break;
     case 'cline':         await mk('.clinerules'); break;
     case 'codex':         await writeFile(join(cwd, 'AGENTS.md'), '# project conventions\n'); break;
     case 'continue':      await mk('.continue'); break;
-    case 'copilot-chat':  await mk('.github'); break;
     case 'cursor':        await mk('.cursor'); break;
     case 'gemini':        await mk('.gemini'); break;
-    case 'goose':         await mkH('.config', 'goose'); break;
-    case 'jetbrains':     await mk('.idea'); break;
     case 'kilo-code':     await mk('.kilocode'); break;
     case 'opencode':      await mkH('.config', 'opencode'); break;
-    case 'pearai':        await mk('.pearai'); break;
-    case 'pieces':        await mkH('.config', 'Pieces'); break;
-    case 'plandex':       await mk('.plandex'); break;
     case 'roo-code':      await mk('.roo'); break;
-    case 'tabnine':       await mk('.tabnine'); break;
-    case 'windsurf':      await mk('.windsurf'); break;
-    case 'zed':           await mkH('.config', 'zed'); break;
     case 'hosted-fallback': break; // never writes; skipped in caller
     default: throw new Error(`No fixture synth for adapter id: ${adapter.id}`);
   }

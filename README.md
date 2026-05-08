@@ -85,33 +85,23 @@ If that is the practitioner reading this, what follows is for them.
 
 ## Supported Harnesses
 
-The installer covers twenty-one harnesses, organised into two tiers by the maturity of their native rule or skill systems. Tier 1 harnesses receive the methodology in their native rule format. Tier 2 harnesses receive a concatenated bundle written into the location their documentation recognises, with begin/end markers so uninstall is surgical.
+The installer covers eleven harnesses, organised into two tiers by the maturity of their native rule or skill systems. Tier 1 harnesses receive the methodology in their native rule format. Tier 2 harnesses receive a concatenated bundle written into the location their documentation recognises, with begin/end markers so uninstall is surgical.
 
 The order below mirrors the registry ordering — alphabetical by adapter id — so that detection output and table cross-reference cleanly.
 
 | Harness                        | Tier   | Format          | Status    |
 |--------------------------------|--------|-----------------|-----------|
 | Aider                          | Tier 1 | yaml-config+md  | Supported |
-| Amazon Q Developer CLI         | Tier 2 | concat-md       | Supported |
 | Claude Code                    | Tier 1 | native-skills   | Supported |
 | Cline                          | Tier 1 | native-skills   | Supported |
 | Codex CLI                      | Tier 1 | append-markers  | Supported |
 | Continue                       | Tier 1 | concat-md       | Supported |
-| GitHub Copilot Chat            | Tier 2 | append-markers  | Supported |
 | Cursor                         | Tier 1 | mdc             | Supported |
 | Gemini CLI                     | Tier 1 | append-markers  | Supported |
-| Goose                          | Tier 2 | append-markers  | Supported |
 | Hosted agent (manual install)  | Tier 2 | message-only    | Supported |
-| JetBrains AI Assistant         | Tier 2 | concat-md       | Supported |
 | Kilo Code                      | Tier 1 | native-skills   | Supported |
 | opencode                       | Tier 1 | mixed-mode      | Supported |
-| PearAI                         | Tier 2 | concat-md       | Supported |
-| Pieces                         | Tier 2 | concat-md       | Supported |
-| Plandex                        | Tier 2 | concat-md       | Supported |
 | Roo Code                       | Tier 2 | native-skills   | Supported |
-| Tabnine                        | Tier 2 | concat-md       | Supported |
-| Windsurf                       | Tier 2 | mixed-mode      | Supported |
-| Zed AI                         | Tier 2 | append-markers  | Supported |
 
 Coverage is exhaustive within the first commitment of the project. Where a harness does not appear in this table, it is not because the harness has been overlooked; it is because its support is the proper subject of a future engagement.
 
@@ -148,7 +138,7 @@ The command engages the methodology in full for the request that follows. It is 
 | Codex CLI   | `~/.codex/prompts/10x-engineer.md`              | *(user-scope only; no project surface)*   | markdown |
 | Gemini CLI  | `~/.gemini/commands/10x-engineer.toml`          | `<projectRoot>/.gemini/commands/10x-engineer.toml` | TOML |
 
-The remaining seventeen supported harnesses receive the methodology through their native rule, skill, or instruction surfaces. They have no user-defined slash-command convention to wire against; the ambient register is the only register they expose. This is not a defect of the harnesses; it is a difference in vocabulary. The methodology arrives nonetheless.
+The remaining eight supported harnesses receive the methodology through their native rule, skill, or instruction surfaces. They have no user-defined slash-command convention to wire against; the ambient register is the only register they expose. This is not a defect of the harnesses; it is a difference in vocabulary. The methodology arrives nonetheless.
 
 Uninstall removes the command file alongside the rest of the installation, surgically.
 
@@ -167,7 +157,7 @@ That said: the methodology, once experienced, tends to remain. The disciplines o
 
 ## On Coverage and the Future
 
-Twenty-one harnesses are covered in the table above. The choice of which to support, and which to defer, is itself an act of opinion. The covered set was chosen because each member exposes a documented, marker-friendly location for project-level or user-level instructions; the deferred members are deferred because their conventions are not yet stable enough to write against without the kind of fragile heuristics this project refuses to ship.
+Eleven harnesses are covered in the table above. The choice of which to support, and which to defer, is itself an act of opinion. The covered set was chosen because each member exposes a documented, marker-friendly location for project-level or user-level instructions; the deferred members are deferred because their conventions are not yet stable enough to write against without the kind of fragile heuristics this project refuses to ship.
 
 When a harness's surface stabilises — when its native rules system documents a path that does not change between point releases — it joins the table. Until then, the universal `print` and `export` subcommands serve as a bridge: the methodology can be paste-installed anywhere, by hand, in the way our predecessors installed every methodology they ever adopted.
 
