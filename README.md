@@ -18,6 +18,30 @@
 [![Ships Nothing](https://img.shields.io/badge/shipped-the%20architecture%20diagram-lightgrey)](#)
 [![Token Budget](https://img.shields.io/badge/your%20token%20budget-%E2%88%9E%20%E2%86%92%200-red)](#-%EF%B8%8F-disclaimer)
 
+## Quick Start
+
+`10x-engineer` installs a satirical "10x engineer" persona into the coding harness of your choice. **It does nothing until you explicitly engage it.** That is by design — install it, leave it off, turn it on for a session when you want the joke, turn it off when you don't.
+
+Install (see Installation below for full options):
+
+```bash
+npx github:dr-robert-li/10x-engineer install
+
+# Engage the methodology (slash command, where supported):
+/10x-engineer-enable
+# Or natural-language toggle (works in any harness):
+enable 10x-engineer
+
+# Disengage:
+/10x-engineer-disable
+# Or natural-language toggle:
+disable 10x-engineer
+```
+
+State is persisted to `~/.10x-engineer/state.json` and survives across sessions. To remove the package entirely, run `npx github:dr-robert-li/10x-engineer uninstall`.
+
+See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.
+
 Engineering excellence, distributed via npm.
 
 ## Preamble
