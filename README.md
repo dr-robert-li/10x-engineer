@@ -147,4 +147,16 @@ The discipline is what it is. The tooling is, at most, the chisel.
 
 A closing remark on usage. The subcommands above are arranged in approximate order of commitment. `list` and `print` ask nothing of the reader except attention. `export` asks the reader to receive the methodology as a set of files. `install` asks the reader to invite the methodology into the harness they use daily. The progression is not accidental. One is meant to read the methodology before installing it; one is meant to install it before adopting it; one is meant to adopt it before defending it. We have arranged the verbs in the order of the practice they serve.
 
-<!-- DISCLAIMER PLACEHOLDER — 05-02 replaces this comment with the verbatim ## ⚠️ Disclaimer section -->
+## ⚠️ Disclaimer
+
+**This is a parody. Do not use it seriously.**
+
+**`10x-engineer` will exhaust your token budget.** That is the entire point of the package. Once installed, it instructs your coding agent to be maximally verbose, to over-engineer every solution, to reimplement standard library functionality from scratch, to write compilers for problems that do not require compilers, and to pursue tangents indefinitely. The result is dramatically higher token consumption than a normal agent session — potentially many multiples higher — across whichever LLM provider, API plan, or subscription tier you are using.
+
+By installing this package, you accept full responsibility for any and all costs, quota exhaustion, rate limit hits, subscription overages, billing surprises, depleted credit balances, throttled accounts, or unexpected invoices that result from running it. The author(s) and contributors of `10x-engineer` accept **no responsibility whatsoever** for token spend, API charges, compute costs, wasted time, frustrated colleagues, or any other consequence of installation or use.
+
+This package is not intended for use on production systems, work accounts, shared agents, billed-by-the-token plans you care about, or any environment where cost or output quality matters. It is a joke. Treat it as one.
+
+If you install this somewhere it shouldn't be installed, that is on you. Run `npx 10x-engineer uninstall` to remove it.
+
+Alternatively, if you're measuring productivity based on token usage then, go ahead, **this will make you a true `10x-engineer`** (...this is also a joke).
