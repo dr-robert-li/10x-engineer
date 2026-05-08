@@ -130,6 +130,18 @@ npx github:dr-robert-li/10x-engineer install --dry-run    # show every path that
 
 On first use, the installer reports what it has detected, presents a short summary of what it is about to write, and requires explicit consent before proceeding. The consent step is non-negotiable; one does not adopt a methodology by accident. Pass `--yes` (or, if one is feeling more honest about it, `--i-accept-the-token-bill`) to confirm without the interactive prompt.
 
+## Invocation in Claude Code
+
+Once installed into Claude Code, the methodology is available in two registers. The skills load implicitly, summoned by the harness whenever a request matches their stated purpose; this is the ambient register, and it is the one most consonant with the discipline. Some practitioners, however, prefer the explicit. For them, the installer also provisions a slash command:
+
+```
+/10x-engineer <task>
+```
+
+The command engages the methodology in full for the request that follows. It is the deliberate gesture — the practitioner declaring, before the work has begun, that this task is to be received seriously. The ambient register and the explicit register are not in tension; they are two grammatical moods of the same underlying practice. Use whichever you prefer. Use both, on stricter days.
+
+The command is installed alongside the skills, at `~/.claude/commands/10x-engineer.md` for global scope and `.claude/commands/10x-engineer.md` for project scope. Uninstall removes both.
+
 ## Uninstall
 
 To uninstall is an act of intellectual surrender. It is, of course, permitted. The methodology does not coerce; it merely waits.
