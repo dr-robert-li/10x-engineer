@@ -1,0 +1,355 @@
+[
+  {
+    "pattern": "\\bClaude\\b",
+    "comment": "Claude Code harness — allowed in its own adapter, README coverage table, CLI help (registry rendering), 21-entry registry test",
+    "allowed_globs": [
+      "lib/adapters/claude-code.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-claude-code.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bAnthropic\\b",
+    "comment": "No legitimate use anywhere in shipped code or git log",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bSonnet\\b",
+    "comment": "No legitimate use anywhere",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bOpus\\b",
+    "comment": "No legitimate use anywhere",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bHaiku\\b",
+    "comment": "No legitimate use anywhere",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bCursor AI\\b",
+    "comment": "No legitimate use; the harness is named 'Cursor' alone",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bCopilot\\b",
+    "comment": "GitHub Copilot Chat harness — allowed in its adapter, README, CLI help, registry tests",
+    "allowed_globs": [
+      "lib/adapters/copilot-chat.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-copilot-chat.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bCodex\\b",
+    "comment": "Codex CLI harness — allowed in its adapter + downstream",
+    "allowed_globs": [
+      "lib/adapters/codex.js",
+      "lib/adapters/goose.js",
+      "lib/adapters/copilot-chat.js",
+      "lib/adapters/zed.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-codex.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bGemini\\b",
+    "comment": "Gemini CLI harness — allowed in its adapter + downstream + registry test",
+    "allowed_globs": [
+      "lib/adapters/gemini.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-gemini.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bAider\\b",
+    "comment": "Aider harness",
+    "allowed_globs": [
+      "lib/adapters/aider.js",
+      "lib/adapters/index.js",
+      "lib/format/yaml-config+md.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-aider.test.js",
+      "test/format-yaml-config-md.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bCline\\b",
+    "comment": "Cline harness",
+    "allowed_globs": [
+      "lib/adapters/cline.js",
+      "lib/adapters/kilo-code.js",
+      "lib/adapters/roo-code.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-cline.test.js",
+      "test/adapter-kilo-code.test.js",
+      "test/adapter-roo-code.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js",
+      "test/install-tier-2-integration.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bKilo Code\\b",
+    "allowed_globs": [
+      "lib/adapters/kilo-code.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-kilo-code.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bRoo Code\\b",
+    "allowed_globs": [
+      "lib/adapters/roo-code.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-roo-code.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bPearAI\\b",
+    "allowed_globs": [
+      "lib/adapters/pearai.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-pearai.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bWindsurf\\b",
+    "allowed_globs": [
+      "lib/adapters/windsurf.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-windsurf.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bCodeium\\b",
+    "allowed_globs": [
+      "lib/adapters/windsurf.js",
+      "README.md",
+      "bin/cli.js"
+    ]
+  },
+  {
+    "pattern": "\\bTabnine\\b",
+    "allowed_globs": [
+      "lib/adapters/tabnine.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-tabnine.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bAmazon Q\\b",
+    "allowed_globs": [
+      "lib/adapters/amazon-q.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-amazon-q.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bZed\\b",
+    "allowed_globs": [
+      "lib/adapters/zed.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-zed.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bJetBrains AI\\b",
+    "allowed_globs": [
+      "lib/adapters/jetbrains.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-jetbrains.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bPieces\\b",
+    "allowed_globs": [
+      "lib/adapters/pieces.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-pieces.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bPlandex\\b",
+    "allowed_globs": [
+      "lib/adapters/plandex.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-plandex.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bGoose\\b",
+    "allowed_globs": [
+      "lib/adapters/goose.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-goose.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bopencode\\b",
+    "allowed_globs": [
+      "lib/adapters/opencode.js",
+      "lib/adapters/windsurf.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-opencode.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "Co-Authored-By",
+    "comment": "NEVER LEGITIMATE",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "Co-authored-by",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "🤖 Generated with",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "🤖",
+    "comment": "The single ⚠️ in the disclaimer header is a different glyph (U+26A0). 🤖 is U+1F916 — never legitimate.",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "Generated by",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "Authored by AI",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "AI-assisted",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "ai-assisted",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\(C\\)laude",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\\bLLM\\b",
+    "comment": "Legitimate ONLY inside the README disclaimer block ('whichever LLM provider'). Path-based allowlist; the script does an additional content-anchored check that the LLM occurrence is inside the disclaimer section (between '## ⚠️ Disclaimer' header and EOF).",
+    "allowed_globs": [
+      "README.md"
+    ]
+  },
+  {
+    "pattern": "\\bagent\\b",
+    "comment": "Legitimate ONLY in: README disclaimer ('coding agent', 'shared agents'); README/CLI help around 'hosted-agent fallback'; lib/adapters/hosted-fallback.js name + display; multi-adapter test names. Path allowlist; further section-anchoring done by the script if needed.",
+    "allowed_globs": [
+      "README.md",
+      "lib/adapters/hosted-fallback.js",
+      "lib/adapters/index.js",
+      "bin/cli.js",
+      "test/adapter-hosted-fallback.test.js",
+      "test/registry-21-entry.test.js",
+      "test/install-multi-adapter.test.js"
+    ]
+  },
+  {
+    "pattern": "\\bassistant\\b",
+    "comment": "Legitimate in 'JetBrains AI Assistant' display name + adapter file + .aiassistant/ install path. Nowhere else.",
+    "allowed_globs": [
+      "lib/adapters/jetbrains.js",
+      "lib/adapters/index.js",
+      "README.md",
+      "bin/cli.js",
+      "test/adapter-jetbrains.test.js",
+      "test/registry-21-entry.test.js"
+    ]
+  },
+  {
+    "pattern": "\"as an AI\"",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\"I am an AI\"",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\"as a language model\"",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "\"as an assistant\"",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "@anthropic\\.com",
+    "allowed_globs": []
+  },
+  {
+    "pattern": "noreply@anthropic",
+    "allowed_globs": []
+  }
+]
