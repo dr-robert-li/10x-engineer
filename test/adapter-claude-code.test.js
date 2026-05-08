@@ -17,7 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  mkdtemp, rm, mkdir, readdir, stat, readFile, writeFile,
+  mkdtemp, rm, mkdir, readdir, stat, readFile, writeFile, copyFile,
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -95,8 +95,8 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const installRes = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // 10 skill files + 3 slash command files + 1 output style file
-  assert.equal(installRes.written.length, 14);
+  // Phase 6: 14 prior + 2 hook scripts + 1 persona.txt + 1 settings.json patch = 18.
+  assert.equal(installRes.written.length, 18);
 
   // 10 skill files materialised at <skills/10x-engineer>/
   const installed = (await readdir(detection.paths.global)).sort();
@@ -117,6 +117,35 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
     'engage command must reference $ARGUMENTS for user task pass-through');
   assert.ok(engageBody.includes('.10x-engineer/state.json'),
     'engage command must reference the state.json gate');
+
+  // Phase 6: hook scripts copied to .claude/hooks/.
+  const hooksDir = join(env.homedir, '.claude/hooks');
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.js')), true,
+    'session-start hook script must be installed in .claude/hooks/');
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.js')), true,
+    'user-prompt-submit hook script must be installed in .claude/hooks/');
+  assert.equal(existsSync(join(hooksDir, 'persona.txt')), true,
+    'persona.txt must be written to .claude/hooks/');
+
+  // Hook scripts must contain the same source as lib/hooks/* (copyFile-equality).
+  const sessionStartSrc = await readFile(
+    new URL('../lib/hooks/session-start.js', import.meta.url).pathname, 'utf8');
+  const sessionStartInstalled = await readFile(
+    join(hooksDir, '10x-engineer-session-start.js'), 'utf8');
+  assert.equal(sessionStartInstalled, sessionStartSrc,
+    'installed session-start hook must be byte-equal to lib/hooks/session-start.js');
+
+  // settings.json patched with our two hook entries.
+  const settingsPath = join(env.homedir, '.claude/settings.json');
+  assert.equal(existsSync(settingsPath), true,
+    'settings.json must be created/patched on Phase 6 install');
+  const settings = JSON.parse(await readFile(settingsPath, 'utf8'));
+  assert.equal(Array.isArray(settings.hooks.SessionStart), true);
+  assert.equal(settings.hooks.SessionStart.length, 1);
+  assert.match(settings.hooks.SessionStart[0].hooks[0].command, /10x-engineer/);
+  assert.equal(Array.isArray(settings.hooks.UserPromptSubmit), true);
+  assert.equal(settings.hooks.UserPromptSubmit.length, 1);
+  assert.match(settings.hooks.UserPromptSubmit[0].hooks[0].command, /10x-engineer/);
 
   // Output style file materialised at <output-styles/10x-engineer.md>
   const outputStylePath = join(env.homedir, '.claude/output-styles/10x-engineer.md');
@@ -139,8 +168,8 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const uninstallRes = await claudeCode.uninstall({
     scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // skills dir + 3 command files + output style file
-  assert.equal(uninstallRes.removed.length, 5);
+  // Phase 6: 5 prior + 2 hook scripts + 1 persona.txt + 1 settings.json patch = 9.
+  assert.equal(uninstallRes.removed.length, 9);
 
   // Post-uninstall assertions:
   // 1) The 10x-engineer install directory is gone.
@@ -157,13 +186,34 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   assert.equal(existsSync(outputStylePath), false,
     'post-uninstall: output style file must be removed');
 
+  // Phase 6: hook artefacts removed.
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.js')), false,
+    'post-uninstall: session-start hook must be removed');
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.js')), false,
+    'post-uninstall: user-prompt-submit hook must be removed');
+  assert.equal(existsSync(join(hooksDir, 'persona.txt')), false,
+    'post-uninstall: persona.txt must be removed');
+  // settings.json — file may still exist (rewritten as `{}` by unmergeHookConfig
+  // when no foreign entries remain) — but our hook entries must be gone.
+  if (existsSync(settingsPath)) {
+    const post = JSON.parse(await readFile(settingsPath, 'utf8'));
+    assert.equal(post.hooks ? Object.keys(post.hooks).length : 0, 0,
+      'post-uninstall: no 10x-engineer hook entries remain in settings.json');
+  }
+
   // 2) The empty parent .claude/skills/, .claude/commands/, and
   //    .claude/output-styles/ dirs remain. The adapter creates them via
   //    mkdir({recursive:true}) on install and never deletes parent dirs
   //    on uninstall — surgical removal (ROADMAP cross-phase invariant 4).
   const claudeContents = (await readdir(join(env.homedir, '.claude'))).sort();
-  assert.deepEqual(claudeContents, ['commands', 'output-styles', 'skills'],
-    'post-uninstall .claude/ contains only the parent dirs we created; adapter never deletes parent dirs (surgical removal — ROADMAP cross-phase invariant 4)');
+  // Phase 6: hooks/ parent dir is also created during install and survives
+  // (surgical removal — never delete parent dirs the adapter created via mkdir-p).
+  // settings.json may also survive as a `{}` JSON file if unmergeHookConfig
+  // retained the file (which it does — we never delete user config files).
+  const expectedParents = ['commands', 'hooks', 'output-styles', 'skills'];
+  if (claudeContents.includes('settings.json')) expectedParents.push('settings.json');
+  assert.deepEqual(claudeContents.sort(), expectedParents.sort(),
+    'post-uninstall .claude/ contains parent dirs we created (surgical removal — ROADMAP cross-phase invariant 4); settings.json may persist as `{}`');
 
   // 3) The user's pre-existing sibling marker file (preexisting.md) is byte-identical (content + mtime).
   const userMarkerBodyAfter = await readFile(userMarkerPath, 'utf8');
@@ -199,6 +249,14 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   const outputStyles = (await readdir(outputStylesDir)).sort();
   assert.deepEqual(outputStyles, ['10x-engineer.md'],
     'expected exactly one output style file after re-install (no duplicates)');
+
+  // Phase 6: settings.json hook entries are idempotent — exactly one entry per event.
+  const settingsPath = join(env.homedir, '.claude/settings.json');
+  const settings = JSON.parse(await readFile(settingsPath, 'utf8'));
+  assert.equal(settings.hooks.SessionStart.length, 1,
+    'idempotent install must not duplicate SessionStart hook entries');
+  assert.equal(settings.hooks.UserPromptSubmit.length, 1,
+    'idempotent install must not duplicate UserPromptSubmit hook entries');
 });
 
 test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t) => {
@@ -211,8 +269,8 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
   const r = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 14,
-    'written array must record would-be paths (10 skills + 3 commands + 1 output style) even with dryRun:true');
+  assert.equal(r.written.length, 18,
+    'written array must record would-be paths (10 skills + 3 commands + 1 output style + 2 hooks + 1 persona + 1 settings) even with dryRun:true');
 
   // No skill files materialised
   await assert.rejects(readdir(detection.paths.global), { code: 'ENOENT' });
@@ -231,6 +289,65 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
     'output-styles/ must not be created on dryRun',
   );
 
+  // Phase 6: hooks dir not created on dryRun
+  await assert.rejects(
+    readdir(join(env.homedir, '.claude/hooks')),
+    { code: 'ENOENT' },
+    'hooks/ must not be created on dryRun',
+  );
+  // settings.json not created on dryRun
+  assert.equal(existsSync(join(env.homedir, '.claude/settings.json')), false,
+    'settings.json must not be created on dryRun');
+
   const after = await stat(join(env.homedir, '.claude'));
   assert.equal(before.mtimeMs, after.mtimeMs, 'parent dir mtime must be unchanged on dryRun');
+});
+
+test('install preserves a foreign settings.json hook entry; uninstall removes only ours', async (t) => {
+  const env = await makeEnv(t, { withGlobal: true, withProject: false });
+  const skills = await loadSkills();
+  const detection = await claudeCode.detect(env);
+
+  // Pre-seed settings.json with a foreign hook entry the user already configured.
+  const settingsPath = join(env.homedir, '.claude/settings.json');
+  const foreignSettings = {
+    hooks: {
+      SessionStart: [
+        { hooks: [{ type: 'command', command: 'node /opt/foreign-tool/start.js', timeout: 10 }] },
+      ],
+    },
+    other_user_setting: { keep: 'me' },
+  };
+  await writeFile(settingsPath, JSON.stringify(foreignSettings, null, 2) + '\n');
+
+  await claudeCode.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+  const postInstall = JSON.parse(await readFile(settingsPath, 'utf8'));
+  assert.equal(postInstall.hooks.SessionStart.length, 2,
+    'install must append our SessionStart entry alongside the foreign one');
+  assert.equal(postInstall.other_user_setting.keep, 'me',
+    'install must preserve foreign top-level keys');
+
+  await claudeCode.uninstall({ scope: detection.scope, paths: detection.paths, dryRun: false });
+  const postUninstall = JSON.parse(await readFile(settingsPath, 'utf8'));
+  assert.equal(postUninstall.hooks.SessionStart.length, 1,
+    'uninstall must remove only our SessionStart entry');
+  assert.match(postUninstall.hooks.SessionStart[0].hooks[0].command, /foreign-tool/,
+    'foreign SessionStart entry must survive content-equal');
+  assert.equal(postUninstall.other_user_setting.keep, 'me',
+    'foreign top-level keys must survive uninstall');
+});
+
+test('project-only install does not write to settings.json or hooks/', async (t) => {
+  const env = await makeEnv(t, { withGlobal: false, withProject: true });
+  const skills = await loadSkills();
+  const detection = await claudeCode.detect(env);
+  await claudeCode.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+
+  // Project install path: no global settings.json or hooks dir touched.
+  assert.equal(existsSync(join(env.homedir, '.claude')), false,
+    'project-only install must not create global ~/.claude');
+  assert.equal(existsSync(join(env.cwd, '.claude/settings.json')), false,
+    'project install must not patch project settings.json (Phase 6 hook integration is global-only)');
+  assert.equal(existsSync(join(env.cwd, '.claude/hooks')), false,
+    'project install must not create project hooks dir (Phase 6 hook integration is global-only)');
 });
