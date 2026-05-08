@@ -43,7 +43,7 @@ disable 10x-engineer
 
 State is persisted to `~/.10x-engineer/state.json` and survives across sessions. To remove the package entirely, run `npx github:dr-robert-li/10x-engineer uninstall`.
 
-See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.~~~~
+See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.
 
 ## Preamble
 
