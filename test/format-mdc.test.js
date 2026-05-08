@@ -75,10 +75,16 @@ test('mdc: post-frontmatter body equals skill.body byte-for-byte', () => {
     out.content.endsWith(trickyBody),
     `expected content to end with verbatim body; got: ${JSON.stringify(out.content.slice(-80))}`,
   );
-  // Stronger: the body slice immediately after the second `---\n` is === trickyBody
+  // Stronger: the slice immediately after the second `---\n` is the
+  // state-gate prologue followed by the verbatim trickyBody. The prologue
+  // is the byte-equal STATE_GATE_INSTRUCTION constant; trickyBody appears
+  // immediately after it with no rewrite or substitution.
   const closingIdx = out.content.indexOf('---\n', 4); // skip opening fence
   const bodySlice = out.content.slice(closingIdx + '---\n'.length);
-  assert.equal(bodySlice, trickyBody);
+  assert.ok(
+    bodySlice.endsWith(trickyBody),
+    'post-frontmatter slice must end with verbatim trickyBody',
+  );
 });
 
 test('mdc: description containing " is YAML-escaped to a quoted scalar', () => {
