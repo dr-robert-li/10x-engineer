@@ -95,22 +95,28 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const installRes = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // 10 skill files + 1 slash command file + 1 output style file
-  assert.equal(installRes.written.length, 12);
+  // 10 skill files + 3 slash command files + 1 output style file
+  assert.equal(installRes.written.length, 14);
 
   // 10 skill files materialised at <skills/10x-engineer>/
   const installed = (await readdir(detection.paths.global)).sort();
   assert.equal(installed.length, 10);
 
-  // Slash command file materialised at <commands/10x-engineer.md>
-  const commandPath = join(env.homedir, '.claude/commands/10x-engineer.md');
-  assert.equal(existsSync(commandPath), true,
-    'post-install: slash command file must exist at .claude/commands/10x-engineer.md');
-  const commandBody = await readFile(commandPath, 'utf8');
-  assert.ok(commandBody.startsWith('---\ndescription:'),
-    'slash command file must carry frontmatter with description');
-  assert.ok(commandBody.includes('$ARGUMENTS'),
-    'slash command file must reference $ARGUMENTS for user task pass-through');
+  // All three slash command files materialised at <commands/<id>.md>
+  const commandsDir = join(env.homedir, '.claude/commands');
+  for (const id of ['10x-engineer', '10x-engineer-enable', '10x-engineer-disable']) {
+    const p = join(commandsDir, `${id}.md`);
+    assert.equal(existsSync(p), true,
+      `post-install: ${id}.md must exist at .claude/commands/`);
+    const body = await readFile(p, 'utf8');
+    assert.ok(body.startsWith('---\ndescription:'),
+      `${id} command file must carry frontmatter with description`);
+  }
+  const engageBody = await readFile(join(commandsDir, '10x-engineer.md'), 'utf8');
+  assert.ok(engageBody.includes('$ARGUMENTS'),
+    'engage command must reference $ARGUMENTS for user task pass-through');
+  assert.ok(engageBody.includes('.10x-engineer/state.json'),
+    'engage command must reference the state.json gate');
 
   // Output style file materialised at <output-styles/10x-engineer.md>
   const outputStylePath = join(env.homedir, '.claude/output-styles/10x-engineer.md');
@@ -133,17 +139,19 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const uninstallRes = await claudeCode.uninstall({
     scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // skills dir + command file + output style file
-  assert.equal(uninstallRes.removed.length, 3);
+  // skills dir + 3 command files + output style file
+  assert.equal(uninstallRes.removed.length, 5);
 
   // Post-uninstall assertions:
   // 1) The 10x-engineer install directory is gone.
   assert.equal(existsSync(detection.paths.global), false,
     'post-uninstall: 10x-engineer/ install dir must be removed');
 
-  // 1b) The slash command file is gone.
-  assert.equal(existsSync(commandPath), false,
-    'post-uninstall: slash command file must be removed');
+  // 1b) Every slash command file is gone.
+  for (const id of ['10x-engineer', '10x-engineer-enable', '10x-engineer-disable']) {
+    assert.equal(existsSync(join(commandsDir, `${id}.md`)), false,
+      `post-uninstall: ${id}.md must be removed`);
+  }
 
   // 1c) The output style file is gone.
   assert.equal(existsSync(outputStylePath), false,
@@ -177,11 +185,14 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   const installed = (await readdir(detection.paths.global)).sort();
   assert.equal(installed.length, 10, 'expected exactly 10 files after re-install (no duplicates)');
 
-  // Slash command file remains a single artefact — re-install replaces in place.
+  // Slash command files remain three single artefacts — re-install replaces in place.
   const commandsDir = join(env.homedir, '.claude/commands');
   const commands = (await readdir(commandsDir)).sort();
-  assert.deepEqual(commands, ['10x-engineer.md'],
-    'expected exactly one command file after re-install (no duplicates)');
+  assert.deepEqual(commands, [
+    '10x-engineer-disable.md',
+    '10x-engineer-enable.md',
+    '10x-engineer.md',
+  ], 'expected exactly three command files after re-install (no duplicates)');
 
   // Output style file remains a single artefact too.
   const outputStylesDir = join(env.homedir, '.claude/output-styles');
@@ -200,8 +211,8 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
   const r = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 12,
-    'written array must record would-be paths (10 skills + 1 command + 1 output style) even with dryRun:true');
+  assert.equal(r.written.length, 14,
+    'written array must record would-be paths (10 skills + 3 commands + 1 output style) even with dryRun:true');
 
   // No skill files materialised
   await assert.rejects(readdir(detection.paths.global), { code: 'ENOENT' });

@@ -138,15 +138,29 @@ The command engages the methodology in full for the request that follows. It is 
 
 ### Slash command coverage
 
+The installer provisions three commands for every harness that supports a user-defined slash-command surface: `/10x-engineer` (engage the methodology), `/10x-engineer-enable` (re-engage after pause), and `/10x-engineer-disable` (pause without uninstalling).
+
 | Harness     | Global path                                     | Project path                              | Format   |
 |-------------|-------------------------------------------------|-------------------------------------------|----------|
-| Claude Code | `~/.claude/commands/10x-engineer.md`            | `.claude/commands/10x-engineer.md`        | markdown |
-| Codex CLI   | `~/.codex/prompts/10x-engineer.md`              | *(user-scope only; no project surface)*   | markdown |
-| Gemini CLI  | `~/.gemini/commands/10x-engineer.toml`          | `<projectRoot>/.gemini/commands/10x-engineer.toml` | TOML |
+| Claude Code | `~/.claude/commands/<id>.md`                    | `.claude/commands/<id>.md`                | markdown |
+| Codex CLI   | `~/.codex/prompts/<id>.md`                      | *(user-scope only; no project surface)*   | markdown |
+| Gemini CLI  | `~/.gemini/commands/<id>.toml`                  | `<projectRoot>/.gemini/commands/<id>.toml` | TOML |
 
 The remaining eight supported harnesses receive the methodology through their native rule, skill, or instruction surfaces. They have no user-defined slash-command convention to wire against; the ambient register is the only register they expose. This is not a defect of the harnesses; it is a difference in vocabulary. The methodology arrives nonetheless.
 
-Uninstall removes the command file alongside the rest of the installation, surgically.
+For the harnesses that lack a slash-command surface, the natural-language form is honoured directly: a request containing "disable 10x-engineer" or "enable 10x-engineer" anywhere in the message instructs the active persona to write the corresponding state, and to behave accordingly thereafter.
+
+### Pause and resume without uninstalling
+
+Slash commands `/10x-engineer-disable` and `/10x-engineer-enable` write to `~/.10x-engineer/state.json`:
+
+```json
+{ "enabled": false }
+```
+
+When the file is present and `enabled` is `false`, the persona reads the file, declines to engage the methodology, and responds in normal direct prose. The methodology resumes when the file is set back to `enabled: true` (via `/10x-engineer-enable` or by removing the file). The state file is the single runtime switch; pausing does not require an uninstall, and resuming does not require a reinstall.
+
+Uninstall removes the command files alongside the rest of the installation, surgically. The state file is also cleared at uninstall time, returning the home directory to its pre-install shape.
 
 ## Uninstall
 
