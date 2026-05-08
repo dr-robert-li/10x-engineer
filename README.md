@@ -120,12 +120,12 @@ Coverage is exhaustive within the first commitment of the project. Where a harne
 To install `10x-engineer` is to commit, in a small but visible way, to the methodology. The act of installation is itself the first practice: one does not enter into a discipline by reading about it.
 
 ```bash
-npx 10x-engineer install              # detect host harnesses; prompt and install
-npx 10x-engineer install --all        # install to every detected harness without per-harness prompts
-npx 10x-engineer install --harness cursor  # install to a single named harness
-npx 10x-engineer install --project    # prefer project-scoped installation where the harness supports it
-npx 10x-engineer install --global     # prefer global installation where the harness supports it
-npx 10x-engineer install --dry-run    # show every path that would be written; touch nothing
+npx github:dr-robert-li/10x-engineer install              # detect host harnesses; prompt and install
+npx github:dr-robert-li/10x-engineer install --all        # install to every detected harness without per-harness prompts
+npx github:dr-robert-li/10x-engineer install --harness cursor  # install to a single named harness
+npx github:dr-robert-li/10x-engineer install --project    # prefer project-scoped installation where the harness supports it
+npx github:dr-robert-li/10x-engineer install --global     # prefer global installation where the harness supports it
+npx github:dr-robert-li/10x-engineer install --dry-run    # show every path that would be written; touch nothing
 ```
 
 On first use, the installer reports what it has detected, presents a short summary of what it is about to write, and requires explicit consent before proceeding. The consent step is non-negotiable; one does not adopt a methodology by accident. Pass `--yes` (or, if one is feeling more honest about it, `--i-accept-the-token-bill`) to confirm without the interactive prompt.
@@ -135,8 +135,8 @@ On first use, the installer reports what it has detected, presents a short summa
 To uninstall is an act of intellectual surrender. It is, of course, permitted. The methodology does not coerce; it merely waits.
 
 ```bash
-npx 10x-engineer uninstall              # remove from every harness it was installed into
-npx 10x-engineer uninstall --harness cursor  # remove from a single named harness
+npx github:dr-robert-li/10x-engineer uninstall              # remove from every harness it was installed into
+npx github:dr-robert-li/10x-engineer uninstall --harness cursor  # remove from a single named harness
 ```
 
 The uninstaller works by marker. Every file the installer touched in append mode was written between begin and end sentinels; the uninstaller locates those sentinels and excises the block between them. Files the user authored alongside our content are returned to byte-for-byte equivalence with their pre-installation state. We do not destructively edit. We never have.
@@ -153,11 +153,11 @@ When a harness's surface stabilises — when its native rules system documents a
 
 A small number of additional subcommands are available, each of them in service of the practitioner who wishes to inspect the methodology before, or after, surrendering to it.
 
-- `npx 10x-engineer list` — report every supported harness and whether the current environment exhibits its detection signature.
-- `npx 10x-engineer print` — emit the concatenated methodology to stdout, suitable for paste into any chat surface, hosted environment, or system-prompt field that this installer cannot reach.
-- `npx 10x-engineer export <dir>` — write per-harness pre-formatted bundles into the supplied directory, one subdirectory per harness, for manual installation in environments where automation is, regrettably, not available.
-- `npx 10x-engineer --help` — display the full subcommand surface.
-- `npx 10x-engineer --version` — display the installed version of the methodology, which is the version of the package, which is the only version that matters.
+- `npx github:dr-robert-li/10x-engineer list` — report every supported harness and whether the current environment exhibits its detection signature.
+- `npx github:dr-robert-li/10x-engineer print` — emit the concatenated methodology to stdout, suitable for paste into any chat surface, hosted environment, or system-prompt field that this installer cannot reach.
+- `npx github:dr-robert-li/10x-engineer export <dir>` — write per-harness pre-formatted bundles into the supplied directory, one subdirectory per harness, for manual installation in environments where automation is, regrettably, not available.
+- `npx github:dr-robert-li/10x-engineer --help` — display the full subcommand surface.
+- `npx github:dr-robert-li/10x-engineer --version` — display the installed version of the methodology, which is the version of the package, which is the only version that matters.
 
 The version number, like the methodology, increases monotonically. There is no patch level for a discipline. There is only the version one is currently practising and the version one was previously practising; the second is, by construction, the inferior of the two.
 
@@ -175,6 +175,6 @@ By installing this package, you accept full responsibility for any and all costs
 
 This package is not intended for use on production systems, work accounts, shared agents, billed-by-the-token plans you care about, or any environment where cost or output quality matters. It is a joke. Treat it as one.
 
-If you install this somewhere it shouldn't be installed, that is on you. Run `npx 10x-engineer uninstall` to remove it.
+If you install this somewhere it shouldn't be installed, that is on you. Run `npx github:dr-robert-li/10x-engineer uninstall` to remove it.
 
 Alternatively, if you're measuring productivity based on token usage then, go ahead, **this will make you a true `10x-engineer`** (...this is also a joke).
