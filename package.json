@@ -1,6 +1,6 @@
 {
   "name": "10x-engineer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Install the 10x-engineer persona into supported coding harnesses",
   "type": "module",
   "license": "MIT",
