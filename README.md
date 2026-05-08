@@ -120,6 +120,8 @@ npx github:dr-robert-li/10x-engineer install --dry-run    # show every path that
 
 On first use, the installer reports what it has detected, presents a short summary of what it is about to write, and requires explicit consent before proceeding. The consent step is non-negotiable; one does not adopt a methodology by accident. Pass `--yes` (or, if one is feeling more honest about it, `--i-accept-the-token-bill`) to confirm without the interactive prompt.
 
+After consent, the installer presents a numbered list of the detected harnesses and asks which to install into. Type the indices separated by commas, `a` to take everything, or `n` to take nothing. The detected-but-not-selected harnesses are left untouched; `--all` skips the selection prompt and installs into every detected harness; `--harness <name>` narrows the run to a single named adapter and likewise skips the prompt.
+
 ## Invocation
 
 Once installed, the methodology is available in two registers. The instructions load implicitly — the harness summons them whenever a request matches their stated purpose; this is the ambient register, and it is the one most consonant with the discipline. Some practitioners, however, prefer the explicit gesture. For the harnesses that support user-defined slash commands, the installer also provisions one:
