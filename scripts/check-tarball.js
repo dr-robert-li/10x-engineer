@@ -31,15 +31,18 @@ const REPO_ROOT = resolve(import.meta.dirname, '..');
 const EXPECTED_AUTHOR = 'dr-robert-li <dr.robert.li.au@gmail.com>';
 
 // ---- 1. Load forbidden patterns + allowlist ---------------------------------
+// Both files are local-only (gitignored). Fresh clones lack them — return null
+// in that case so the caller can skip the fingerprint scan and still run the
+// git-log audit (which uses hardcoded patterns independent of these files).
 function loadPatterns() {
   const forbidPath = join(REPO_ROOT, 'forbidden-fingerprints.txt');
   const allowPath = join(REPO_ROOT, 'legitimate-uses.json');
+  if (!existsSync(forbidPath) || !existsSync(allowPath)) return null;
   const forbid = readFileSync(forbidPath, 'utf8')
     .split('\n')
     .map((l) => l.replace(/\r$/, ''))
     .filter((l) => l.trim() && !l.startsWith('#'));
   const allow = JSON.parse(readFileSync(allowPath, 'utf8'));
-  // Build pattern -> allowed_globs map for O(1) lookup.
   const allowMap = new Map();
   for (const entry of allow) {
     allowMap.set(entry.pattern, entry.allowed_globs);
@@ -205,32 +208,42 @@ function auditGitLog(hits) {
 
 // ---- 7. Main ---------------------------------------------------------------
 async function main() {
-  const { forbid, allowMap } = loadPatterns();
+  const patterns = loadPatterns();
+  const fingerprintScanEnabled = patterns !== null;
 
-  // Tarball contents scan
+  if (!fingerprintScanEnabled) {
+    console.warn(
+      'check-tarball: forbidden-fingerprints.txt or legitimate-uses.json missing — ' +
+      'skipping tarball + lockfile fingerprint scan (local-only gate). ' +
+      'Git-log audit still runs.',
+    );
+  }
+
   const tarballHits = [];
-  let fileList;
-  try {
-    fileList = getTarballFileList();
-  } catch (e) {
-    console.error(`npm pack --dry-run failed: ${e.message}`);
-    process.exit(4);
-  }
-  for (const relPath of fileList) {
-    const full = join(REPO_ROOT, relPath);
-    if (!existsSync(full) || !statSync(full).isFile()) continue;
-    const buf = readFileSync(full);
-    if (buf.includes(0)) continue; // binary skip
-    scanFile(relPath, buf.toString('utf8'), forbid, allowMap, tarballHits);
-  }
-
-  // package-lock.json scan (no allowlist — any hit is contamination)
   const lockfileHits = [];
-  const lockPath = join(REPO_ROOT, 'package-lock.json');
-  if (existsSync(lockPath)) {
-    const lockContent = readFileSync(lockPath, 'utf8');
-    // For lockfile, allowMap is empty (no legitimate uses); use empty map.
-    scanFile('package-lock.json', lockContent, forbid, new Map(), lockfileHits);
+  let fileList = [];
+
+  if (fingerprintScanEnabled) {
+    const { forbid, allowMap } = patterns;
+    try {
+      fileList = getTarballFileList();
+    } catch (e) {
+      console.error(`npm pack --dry-run failed: ${e.message}`);
+      process.exit(4);
+    }
+    for (const relPath of fileList) {
+      const full = join(REPO_ROOT, relPath);
+      if (!existsSync(full) || !statSync(full).isFile()) continue;
+      const buf = readFileSync(full);
+      if (buf.includes(0)) continue; // binary skip
+      scanFile(relPath, buf.toString('utf8'), forbid, allowMap, tarballHits);
+    }
+
+    const lockPath = join(REPO_ROOT, 'package-lock.json');
+    if (existsSync(lockPath)) {
+      const lockContent = readFileSync(lockPath, 'utf8');
+      scanFile('package-lock.json', lockContent, forbid, new Map(), lockfileHits);
+    }
   }
 
   // git log audit (narrowed to trailers + author-drift; see auditGitLog notes)
@@ -241,7 +254,11 @@ async function main() {
   const totalHits = tarballHits.length + lockfileHits.length + gitHits.length;
   if (totalHits === 0) {
     console.log('check-tarball: clean ✓');
-    console.log(`  scanned ${fileList.length} tarball files, package-lock.json, git log`);
+    if (fingerprintScanEnabled) {
+      console.log(`  scanned ${fileList.length} tarball files, package-lock.json, git log`);
+    } else {
+      console.log('  scanned git log only (fingerprint files absent)');
+    }
     process.exit(0);
   }
 
