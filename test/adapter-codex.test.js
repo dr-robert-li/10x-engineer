@@ -355,3 +355,139 @@ test('codex dryRun:true does not create the prompt file', async (t) => {
   assert.equal(existsSync(join(env.homedir, '.codex', 'prompts')), false,
     'dryRun must not create the prompts/ dir');
 });
+
+test('codex Phase 6: install copies hook scripts + persona.txt + patches hooks.json (global scope)', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  assert.equal(detection.found, true);
+  assert.equal(detection.scope, 'global');
+
+  await codex.install({
+    skills, scope: detection.scope, paths: detection.paths, dryRun: false, version: '0.3.0',
+  });
+
+  // The two hook scripts and persona.txt
+  const hooksDir = join(env.homedir, '.codex/hooks');
+  const ssPath = join(hooksDir, '10x-engineer-session-start.js');
+  const upsPath = join(hooksDir, '10x-engineer-user-prompt-submit.js');
+  const personaPath = join(hooksDir, 'persona.txt');
+  assert.equal(existsSync(ssPath), true, 'session-start script must exist in .codex/hooks/');
+  assert.equal(existsSync(upsPath), true, 'user-prompt-submit script must exist in .codex/hooks/');
+  assert.equal(existsSync(personaPath), true, 'persona.txt must exist in .codex/hooks/');
+
+  // hooks.json patched
+  const hooksJsonPath = join(env.homedir, '.codex/hooks.json');
+  assert.equal(existsSync(hooksJsonPath), true, 'hooks.json must be created on install');
+  const cfg = JSON.parse(await readFile(hooksJsonPath, 'utf8'));
+  assert.equal(cfg.hooks.SessionStart.length, 1);
+  assert.match(cfg.hooks.SessionStart[0].hooks[0].command, /10x-engineer-session-start/);
+  assert.equal(cfg.hooks.UserPromptSubmit.length, 1);
+  assert.match(cfg.hooks.UserPromptSubmit[0].hooks[0].command, /10x-engineer-user-prompt-submit/);
+
+  // Hook scripts must be byte-equal to lib/hooks/* sources
+  const ssSrc = await readFile(
+    new URL('../lib/hooks/session-start.js', import.meta.url).pathname, 'utf8');
+  assert.equal(await readFile(ssPath, 'utf8'), ssSrc,
+    'installed session-start hook must be byte-equal to source');
+
+  // Mode 0755 on POSIX
+  if (process.platform !== 'win32') {
+    const st = await stat(ssPath);
+    assert.equal(st.mode & 0o111, 0o111, 'installed session-start hook must be executable on POSIX');
+  }
+
+  // Round-trip uninstall removes all four artefacts
+  await codex.uninstall({ scope: detection.scope, paths: detection.paths, dryRun: false });
+  assert.equal(existsSync(ssPath), false);
+  assert.equal(existsSync(upsPath), false);
+  assert.equal(existsSync(personaPath), false);
+  // hooks.json may persist as `{}` after our entries are removed
+  if (existsSync(hooksJsonPath)) {
+    const post = JSON.parse(await readFile(hooksJsonPath, 'utf8'));
+    assert.equal(post.hooks ? Object.keys(post.hooks).length : 0, 0,
+      'no 10x-engineer hook entries remain in hooks.json after uninstall');
+  }
+});
+
+test('codex Phase 6: foreign hooks.json entry survives install + uninstall', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+
+  // Pre-seed hooks.json with a foreign entry the user already configured.
+  const hooksJsonPath = join(env.homedir, '.codex/hooks.json');
+  const foreign = {
+    hooks: {
+      SessionStart: [
+        { hooks: [{ type: 'command', command: 'node /opt/foreign-tool/start.js', timeout: 10 }] },
+      ],
+    },
+    other_user_setting: { keep: 'me' },
+  };
+  await writeFile(hooksJsonPath, JSON.stringify(foreign, null, 2) + '\n');
+
+  const detection = await codex.detect(env);
+  await codex.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+  const postInstall = JSON.parse(await readFile(hooksJsonPath, 'utf8'));
+  assert.equal(postInstall.hooks.SessionStart.length, 2,
+    'install must append our SessionStart entry alongside the foreign one');
+  assert.equal(postInstall.other_user_setting.keep, 'me',
+    'foreign top-level keys must survive install');
+
+  await codex.uninstall({ scope: detection.scope, paths: detection.paths, dryRun: false });
+  const postUninstall = JSON.parse(await readFile(hooksJsonPath, 'utf8'));
+  assert.equal(postUninstall.hooks.SessionStart.length, 1,
+    'uninstall must remove only our SessionStart entry');
+  assert.match(postUninstall.hooks.SessionStart[0].hooks[0].command, /foreign-tool/,
+    'foreign SessionStart entry must survive content-equal');
+  assert.equal(postUninstall.other_user_setting.keep, 'me',
+    'foreign top-level keys must survive uninstall');
+});
+
+test('codex Phase 6: idempotent re-install does not duplicate hooks.json entries', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  await codex.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+  await codex.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+  const cfg = JSON.parse(await readFile(join(env.homedir, '.codex/hooks.json'), 'utf8'));
+  assert.equal(cfg.hooks.SessionStart.length, 1, 're-install must not duplicate SessionStart');
+  assert.equal(cfg.hooks.UserPromptSubmit.length, 1, 're-install must not duplicate UserPromptSubmit');
+});
+
+test('codex Phase 6: project-only install does not patch hooks.json or create hooks dir', async (t) => {
+  const env = await makeEnv(t, { withProjectAgents: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  assert.equal(detection.found, true);
+  assert.equal(detection.scope, 'project',
+    'no <homedir>/.codex/, no codex on PATH → project-only scope');
+
+  await codex.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
+
+  // No hooks dir at homedir or cwd
+  assert.equal(existsSync(join(env.homedir, '.codex')), false,
+    'project install must not create <homedir>/.codex/');
+  assert.equal(existsSync(join(env.cwd, '.codex')), false,
+    'project install must not create project-side .codex/');
+});
+
+test('codex Phase 6: dryRun does not create hooks dir or hooks.json', async (t) => {
+  const env = await makeEnv(t, { withGlobalDir: true });
+  const skills = await loadSkills();
+  const detection = await codex.detect(env);
+  const r = await codex.install({
+    skills, scope: detection.scope, paths: detection.paths, dryRun: true,
+  });
+  // hooks dir not created
+  assert.equal(existsSync(join(env.homedir, '.codex/hooks')), false,
+    'hooks/ must not be created on dryRun');
+  assert.equal(existsSync(join(env.homedir, '.codex/hooks.json')), false,
+    'hooks.json must not be created on dryRun');
+  // written array still records would-be paths
+  const wouldBe = r.written.join('\n');
+  assert.match(wouldBe, /10x-engineer-session-start\.js/,
+    'dryRun written array must include the would-be session-start path');
+  assert.match(wouldBe, /hooks\.json/,
+    'dryRun written array must include the would-be hooks.json path');
+});
