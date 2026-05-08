@@ -1,4 +1,22 @@
-# 10x-engineer
+# Claude Plugin to Enforce 10x Engineering Practices
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white)](package.json)
+[![Compiled with EBNF](https://img.shields.io/badge/grammar-EBNF%201960-8b4513)](#)
+[![Tested in Coq](https://img.shields.io/badge/proofs-Coq%20%E2%88%80%E2%88%83-c0392b)](#)
+[![COBOL Compliant](https://img.shields.io/badge/PROCEDURE%20DIVISION-1959-2c3e50)](#)
+[![Forth Approved](https://img.shields.io/badge/forth-words%20over%20syntax-1a1a1a)](#)
+[![Ada Reviewed](https://img.shields.io/badge/Ada-pragma%20Ravenscar-c41e3a)](#)
+[![Endorsed by Wirth](https://img.shields.io/badge/Wirth-A%20Plea%20for%20Lean%20Software%20(1995)-2980b9)](#)
+[![Dijkstra Approved](https://img.shields.io/badge/Dijkstra-On%20the%20Cruelty-7f8c8d)](#)
+[![Knuth Volume](https://img.shields.io/badge/TAOCP-volume%204A-8e44ad)](#)
+[![Modern Frameworks](https://img.shields.io/badge/modern%20frameworks-0-success)](#)
+[![Lifetime Annotations](https://img.shields.io/badge/lifetimes-PhantomData%3CT%3E-dea584?logo=rust&logoColor=white)](#)
+[![Monad Transformers](https://img.shields.io/badge/ReaderT-StateT-ExceptT-IO-5e5086?logo=haskell&logoColor=white)](#)
+[![Yoneda Citations](https://img.shields.io/badge/Yoneda-required-2b6cb0)](#)
+[![Compiles to Itself](https://img.shields.io/badge/bootstrap-self--hosted-orange)](#)
+[![Ships Nothing](https://img.shields.io/badge/shipped-the%20architecture%20diagram-lightgrey)](#)
+[![Token Budget](https://img.shields.io/badge/your%20token%20budget-%E2%88%9E%20%E2%86%92%200-red)](#-%EF%B8%8F-disclaimer)
 
 Engineering excellence, distributed via npm.
 
