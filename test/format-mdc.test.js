@@ -10,6 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/mdc.js';
+import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(overrides = {}) {
   return {
@@ -112,5 +113,26 @@ test('mdc: emitted frontmatter has EXACTLY three keys (not four)', () => {
   assert.equal(
     keyLines.length, 3,
     `mdc frontmatter must have exactly three keys; got ${keyLines.length}: ${JSON.stringify(keyLines)}`,
+  );
+});
+
+test('mdc.state-gate-prologue-byte-equal', () => {
+  // Single-source assertion: the prologue inside the .mdc body is byte-equal
+  // to the STATE_GATE_INSTRUCTION export. Order check confirms the prologue
+  // appears AFTER the .mdc frontmatter, not before.
+  const skills = [
+    { id: 's1', name: 's1', description: 'd1', when_to_use: 'w1', body: 'body1\n' },
+  ];
+  const out = transform(skills, '0.3.0');
+  assert.ok(
+    out[0].content.includes(STATE_GATE_INSTRUCTION),
+    'STATE_GATE_INSTRUCTION must appear in the .mdc body',
+  );
+  // Order check: frontmatter ends, then state-gate, then body
+  const fmEnd = out[0].content.indexOf('---\n', 4) + '---\n'.length;
+  const gateAt = out[0].content.indexOf(STATE_GATE_INSTRUCTION);
+  assert.ok(
+    gateAt >= fmEnd,
+    'STATE_GATE_INSTRUCTION must appear AFTER the .mdc frontmatter',
   );
 });

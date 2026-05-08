@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/native-skills.js';
+import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -45,4 +46,22 @@ test('transform preserves skill body verbatim (skill content is opaque to the pi
   // Body is appended after the closing fence — stringifyFrontmatter emits `---\n...---\n${body}`
   assert.ok(out.content.endsWith(trickyBody),
     `expected content to end with the verbatim body; got: ${JSON.stringify(out.content.slice(-80))}`);
+});
+
+test('native-skills.state-gate-prologue-byte-equal-in-every-skill', () => {
+  // Single-source assertion: the prologue text in every produced skill file
+  // is byte-equal to the canonical STATE_GATE_INSTRUCTION export. Editing
+  // the export propagates to every adapter that consumes this format; this
+  // test guards the link.
+  const skills = [
+    { id: 's1', data: { name: 's1', description: 'd1', when_to_use: 'w1' }, body: 'body1\n' },
+    { id: 's2', data: { name: 's2', description: 'd2', when_to_use: 'w2' }, body: 'body2\n' },
+  ];
+  const out = transform(skills, '0.3.0');
+  for (const file of out) {
+    assert.ok(
+      file.content.includes(STATE_GATE_INSTRUCTION),
+      `STATE_GATE_INSTRUCTION must appear in every native-skills output file: ${file.relativePath}`,
+    );
+  }
 });

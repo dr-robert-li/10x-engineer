@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/concat-md.js';
 import { MARKER_BEGIN_PREFIX } from '../lib/markers.js';
+import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -93,4 +94,22 @@ test('concat-md.dollar-substitution-survives-byte-identical', () => {
     out[0].content.includes('description with $& and ${0} hazards'),
     'trickyDescription must appear byte-identical in output',
   );
+});
+
+test('concat-md.state-gate-prologue-byte-equal-after-header', () => {
+  // Single-source assertion: the prologue is byte-equal to the
+  // STATE_GATE_INSTRUCTION export and appears AFTER the persona header,
+  // BEFORE the section list.
+  const skills = [
+    { id: 's1', name: 's1', description: 'd1', when_to_use: 'w1', body: 'body1\n' },
+  ];
+  const out = transform(skills, '0.3.0');
+  assert.equal(out[0].relativePath, '10x-engineer.md');
+  assert.ok(
+    out[0].content.includes(STATE_GATE_INSTRUCTION),
+    'STATE_GATE_INSTRUCTION must appear in the concat-md body',
+  );
+  const headerIdx = out[0].content.indexOf('# 10x-engineer persona');
+  const gateIdx = out[0].content.indexOf(STATE_GATE_INSTRUCTION);
+  assert.ok(headerIdx < gateIdx, 'state-gate must follow the persona header');
 });

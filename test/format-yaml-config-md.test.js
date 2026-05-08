@@ -11,6 +11,7 @@ import {
   mergeReadEntry,
   UnsupportedConfigShapeError,
 } from '../lib/format/yaml-config+md.js';
+import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -247,4 +248,18 @@ test('UnsupportedConfigShapeError carries name and message prefix', () => {
   assert.ok(err.message.startsWith('.aider.conf.yml shape unsupported:'));
   assert.ok(err.message.includes('npx 10x-engineer print'));
   assert.ok(err instanceof Error);
+});
+
+test('yaml-config+md.state-gate-prologue-byte-equal-in-CONVENTIONS', () => {
+  // Single-source assertion: the prologue inside CONVENTIONS.md is
+  // byte-equal to the STATE_GATE_INSTRUCTION export.
+  const skills = [
+    { id: 's1', name: 's1', description: 'd1', when_to_use: 'w1', body: 'body1\n' },
+  ];
+  const out = transform(skills, '0.3.0');
+  assert.equal(out[0].relativePath, 'CONVENTIONS.md');
+  assert.ok(
+    out[0].content.includes(STATE_GATE_INSTRUCTION),
+    'STATE_GATE_INSTRUCTION must appear in CONVENTIONS.md body',
+  );
 });

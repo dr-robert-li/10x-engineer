@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/append-markers.js';
 import { MARKER_BEGIN_PREFIX, MARKER_END } from '../lib/markers.js';
+import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -89,5 +90,24 @@ test('append-markers.body-with-dollar-substitution-survives-byte-identical', () 
   assert.ok(
     out[0].content.includes('cost: $&100 and $1 with $${0}'),
     'function-form wrapBlock must preserve $& $1 $${} substitution sigils byte-identical',
+  );
+});
+
+test('append-markers.state-gate-prologue-byte-equal-inside-marker-block', () => {
+  // Single-source assertion: the prologue inside the wrapped block is
+  // byte-equal to the STATE_GATE_INSTRUCTION export. Order check confirms
+  // the prologue lives INSIDE the BEGIN/END marker block so stripBlock
+  // removes it on uninstall.
+  const out = transform([makeSkill('a'), makeSkill('b')], '0.3.0');
+  assert.ok(
+    out[0].content.includes(STATE_GATE_INSTRUCTION),
+    'STATE_GATE_INSTRUCTION must appear in the wrapped marker block',
+  );
+  const beginIdx = out[0].content.indexOf('<!-- BEGIN 10x-engineer');
+  const endIdx = out[0].content.indexOf('<!-- END 10x-engineer');
+  const gateIdx = out[0].content.indexOf(STATE_GATE_INSTRUCTION);
+  assert.ok(
+    beginIdx < gateIdx && gateIdx < endIdx,
+    'STATE_GATE_INSTRUCTION must appear INSIDE the BEGIN/END marker block',
   );
 });
