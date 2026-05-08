@@ -36,13 +36,14 @@ enable 10x-engineer
 /10x-engineer-disable
 # Or natural-language toggle:
 disable 10x-engineer
+
+# If it fails to take hold
+/10x-engineer <task>
 ```
 
 State is persisted to `~/.10x-engineer/state.json` and survives across sessions. To remove the package entirely, run `npx github:dr-robert-li/10x-engineer uninstall`.
 
-See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.
-
-Engineering excellence, distributed via npm.
+See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.~~~~
 
 ## Preamble
 
