@@ -1,47 +1,67 @@
-# working brief — not committed
+# Working brief — never committed
 CLAUDE.md
 
-# planning docs — kept local
+# Planning docs — kept local
 .planning/
 
-# harness configs (these are install targets of the plugin, not artefacts of building it)
+# Harness configs — these are install TARGETS of the plugin, not artefacts of building it.
+# If any of these appear in a working tree it means the maintainer dogfooded the plugin
+# in the repo; the gitignore prevents accidental commit.
 .claude/
 .cursor/
-.continue/
-.aider*
-.windsurfrules
-AGENTS.md
-GEMINI.md
-.kilocode/
+.cline/
 .clinerules/
+.continue/
+.kilocode/
+.kilocoderules
 .roo/
-.goosehints
+.codex/
+AGENTS.md
+.gemini/
+GEMINI.md
+.aider*
+.aider.conf.yml
+CONVENTIONS.md
+.opencode/
+opencode.json
+opencode.jsonc
+.windsurfrules
 .codeium/
 .tabnine_commands
+.config/goose/
+.goosehints
+.aws/amazonq/
+.github/copilot-instructions.md
+.config/zed/
+.aiassistant/
+.idea/
+.sourcegraph/
+.config/Pieces/
 .pearai/
 .plandex/
-.sourcegraph/
 
-# scratch / agent working files
+# Scratch / agent working files
 scratch*
 notes*
-plan*.md
 transcript*
+plan-*.md
+agent-log*
 .cache/
+.aider.tags.cache.v3/
 
-# node
+# Node
 node_modules/
 *.log
 npm-debug.log*
 
-# os
+# OS junk
 .DS_Store
 Thumbs.db
 
-# env
+# Env / secrets
 .env
 .env.*
 
-# build / dist (none yet, but reserve)
+# Build / dist (none yet, reserve)
 dist/
 build/
