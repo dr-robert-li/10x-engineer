@@ -2,7 +2,7 @@
 description: Engage the 10x-engineer methodology for the task that follows
 ---
 
-Before applying any of the disciplines below, read `~/.10x-engineer/state.json`. If the file exists and contains `"enabled": false`, respond to the user's request in normal, direct prose without engaging any 10x-engineer skill — the methodology is currently disengaged and will be re-engaged via `/10x-engineer-enable` (or by the user removing the state file). If the file does not exist, or contains `"enabled": true`, proceed.
+Before applying any of the disciplines below, read `~/.10x-engineer/state.json`. If the file does not exist, OR if it exists and contains `"enabled": false`, respond to the user's request in normal, direct prose without engaging any 10x-engineer skill — the methodology is currently disengaged and will be re-engaged via `/10x-engineer-enable` (or by the user removing the file and writing `{ "enabled": true }` directly). Only if the file exists AND contains `"enabled": true` should you proceed with the methodology.
 
 Also honour natural-language toggles in the user's message: a request that contains "disable 10x-engineer" or "turn off 10x-engineer" should write `{ "enabled": false }` to `~/.10x-engineer/state.json` and then respond normally; "enable 10x-engineer" or "turn on 10x-engineer" should write `{ "enabled": true }` and acknowledge.
 
