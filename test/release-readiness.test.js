@@ -168,3 +168,95 @@ for (const adapter of adapters) {
     assertSurgical(preCwd,  postCwd,  'cwd');
   });
 }
+
+// ---------------------------------------------------------------------------
+// HOOK-09 carve-out: settings.json / hooks.json content-equal round-trip.
+//
+// REL-13 (Phase 5) asserts byte-identical round-trip on marker-bounded
+// append-mode files. Phase 6 introduces structured-edit JSON config files
+// (settings.json, hooks.json) where byte-identity is impossible — JSON.parse
+// + JSON.stringify always re-serializes. The Phase 6 contract is weaker:
+// foreign entries survive CONTENT-EQUAL. This test pins that contract.
+// ---------------------------------------------------------------------------
+
+import claudeCodeAdapter from '../lib/adapters/claude-code.js';
+import codexAdapter from '../lib/adapters/codex.js';
+
+test('release-readiness HOOK-09: claude-code settings.json content-equal round-trip with foreign entry', async (t) => {
+  const tmpRoot = await mkdtemp(join(tmpdir(), 'release-cc-hook-'));
+  t.after(() => rm(tmpRoot, { recursive: true, force: true }));
+  neutralisePath(t, tmpRoot);
+
+  const homedir = join(tmpRoot, 'home');
+  const cwd = join(tmpRoot, 'project');
+  await mkdir(homedir, { recursive: true });
+  await mkdir(cwd, { recursive: true });
+  await mkdir(join(homedir, '.claude'), { recursive: true });
+
+  // Pre-seed settings.json with a foreign hook entry + a foreign top-level key.
+  const settingsPath = join(homedir, '.claude/settings.json');
+  const foreign = {
+    hooks: {
+      SessionStart: [
+        { hooks: [{ type: 'command', command: 'node /opt/foreign-tool/start.js', timeout: 10 }] },
+      ],
+    },
+    other_user_setting: { keep: 'me', nested: { array: [1, 2, 3] } },
+  };
+  await writeFile(settingsPath, JSON.stringify(foreign, null, 2) + '\n');
+
+  const detection = await claudeCodeAdapter.detect({ cwd, homedir });
+  await claudeCodeAdapter.install({
+    skills, scope: detection.scope, paths: detection.paths, dryRun: false, version: '0.3.0',
+  });
+  await claudeCodeAdapter.uninstall({
+    scope: detection.scope, paths: detection.paths, dryRun: false,
+  });
+
+  // settings.json may persist; foreign content must survive content-equal.
+  const post = JSON.parse(await readFile(settingsPath, 'utf8'));
+  // Foreign hook entry survives
+  assert.equal(post.hooks.SessionStart.length, 1,
+    'foreign SessionStart entry must survive uninstall');
+  assert.match(post.hooks.SessionStart[0].hooks[0].command, /foreign-tool/);
+  // Foreign top-level key survives by content (deep-equal)
+  assert.deepEqual(post.other_user_setting, foreign.other_user_setting,
+    'foreign top-level keys must survive content-equal');
+});
+
+test('release-readiness HOOK-09: codex hooks.json content-equal round-trip with foreign entry', async (t) => {
+  const tmpRoot = await mkdtemp(join(tmpdir(), 'release-codex-hook-'));
+  t.after(() => rm(tmpRoot, { recursive: true, force: true }));
+  neutralisePath(t, tmpRoot);
+
+  const homedir = join(tmpRoot, 'home');
+  const cwd = join(tmpRoot, 'project');
+  await mkdir(homedir, { recursive: true });
+  await mkdir(cwd, { recursive: true });
+  await mkdir(join(homedir, '.codex'), { recursive: true });
+
+  const hooksJsonPath = join(homedir, '.codex/hooks.json');
+  const foreign = {
+    hooks: {
+      UserPromptSubmit: [
+        { hooks: [{ type: 'command', command: 'node /opt/some-tool/anchor.js', timeout: 5 }] },
+      ],
+    },
+    foreign_codex_setting: 'survive me',
+  };
+  await writeFile(hooksJsonPath, JSON.stringify(foreign, null, 2) + '\n');
+
+  const detection = await codexAdapter.detect({ cwd, homedir });
+  await codexAdapter.install({
+    skills, scope: detection.scope, paths: detection.paths, dryRun: false, version: '0.3.0',
+  });
+  await codexAdapter.uninstall({
+    scope: detection.scope, paths: detection.paths, dryRun: false,
+  });
+
+  const post = JSON.parse(await readFile(hooksJsonPath, 'utf8'));
+  assert.equal(post.hooks.UserPromptSubmit.length, 1,
+    'foreign UserPromptSubmit entry must survive uninstall');
+  assert.match(post.hooks.UserPromptSubmit[0].hooks[0].command, /some-tool/);
+  assert.equal(post.foreign_codex_setting, 'survive me');
+});
