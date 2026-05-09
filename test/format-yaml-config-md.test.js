@@ -11,7 +11,7 @@ import {
   mergeReadEntry,
   UnsupportedConfigShapeError,
 } from '../lib/format/yaml-config+md.js';
-import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
+import { STATE_GATE_INSTRUCTION, BUILD_MODE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -253,6 +253,8 @@ test('UnsupportedConfigShapeError carries name and message prefix', () => {
 test('yaml-config+md.state-gate-prologue-byte-equal-in-CONVENTIONS', () => {
   // Single-source assertion: the prologue inside CONVENTIONS.md is
   // byte-equal to the STATE_GATE_INSTRUCTION export.
+  // BUILD_MODE_INSTRUCTION rides along on the same single-source contract
+  // (BUILD-03).
   const skills = [
     { id: 's1', name: 's1', description: 'd1', when_to_use: 'w1', body: 'body1\n' },
   ];
@@ -262,4 +264,27 @@ test('yaml-config+md.state-gate-prologue-byte-equal-in-CONVENTIONS', () => {
     out[0].content.includes(STATE_GATE_INSTRUCTION),
     'STATE_GATE_INSTRUCTION must appear in CONVENTIONS.md body',
   );
+  assert.ok(
+    out[0].content.includes(BUILD_MODE_INSTRUCTION),
+    'BUILD_MODE_INSTRUCTION must appear in CONVENTIONS.md body',
+  );
+});
+
+test('yaml-config-md.build-mode-prologue-follows-state-gate-prologue', () => {
+  // Canonical order (BUILD-03): the state-gate engages first (per-session
+  // enable check), then build-mode applies. Reversing the order would
+  // mean the host runner sees build-mode patterns in a body that has
+  // not yet been gated — defeats the default-off contract.
+  const skills = [makeSkill('a')];
+  const out = transform(skills, '0.3.0');
+  for (const file of out) {
+    const sgi = file.content.indexOf(STATE_GATE_INSTRUCTION);
+    const bmi = file.content.indexOf(BUILD_MODE_INSTRUCTION);
+    assert.ok(sgi >= 0, `STATE_GATE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(bmi >= 0, `BUILD_MODE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(
+      bmi > sgi,
+      `BUILD_MODE_INSTRUCTION must appear AFTER STATE_GATE_INSTRUCTION in ${file.relativePath}; got SGI@${sgi}, BMI@${bmi}`,
+    );
+  }
 });

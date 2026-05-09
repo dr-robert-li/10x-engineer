@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/mdc.js';
-import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
+import { STATE_GATE_INSTRUCTION, BUILD_MODE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(overrides = {}) {
   return {
@@ -119,7 +119,8 @@ test('mdc: emitted frontmatter has EXACTLY three keys (not four)', () => {
 test('mdc.state-gate-prologue-byte-equal', () => {
   // Single-source assertion: the prologue inside the .mdc body is byte-equal
   // to the STATE_GATE_INSTRUCTION export. Order check confirms the prologue
-  // appears AFTER the .mdc frontmatter, not before.
+  // appears AFTER the .mdc frontmatter, not before. BUILD_MODE_INSTRUCTION
+  // rides along on the same single-source contract (BUILD-03).
   const skills = [
     { id: 's1', name: 's1', description: 'd1', when_to_use: 'w1', body: 'body1\n' },
   ];
@@ -128,6 +129,10 @@ test('mdc.state-gate-prologue-byte-equal', () => {
     out[0].content.includes(STATE_GATE_INSTRUCTION),
     'STATE_GATE_INSTRUCTION must appear in the .mdc body',
   );
+  assert.ok(
+    out[0].content.includes(BUILD_MODE_INSTRUCTION),
+    'BUILD_MODE_INSTRUCTION must appear in the .mdc body',
+  );
   // Order check: frontmatter ends, then state-gate, then body
   const fmEnd = out[0].content.indexOf('---\n', 4) + '---\n'.length;
   const gateAt = out[0].content.indexOf(STATE_GATE_INSTRUCTION);
@@ -135,4 +140,23 @@ test('mdc.state-gate-prologue-byte-equal', () => {
     gateAt >= fmEnd,
     'STATE_GATE_INSTRUCTION must appear AFTER the .mdc frontmatter',
   );
+});
+
+test('mdc.build-mode-prologue-follows-state-gate-prologue', () => {
+  // Canonical order (BUILD-03): the state-gate engages first (per-session
+  // enable check), then build-mode applies. Reversing the order would
+  // mean the host runner sees build-mode patterns in a body that has
+  // not yet been gated — defeats the default-off contract.
+  const skills = [makeSkill({ id: 's1' })];
+  const out = transform(skills, '0.3.0');
+  for (const file of out) {
+    const sgi = file.content.indexOf(STATE_GATE_INSTRUCTION);
+    const bmi = file.content.indexOf(BUILD_MODE_INSTRUCTION);
+    assert.ok(sgi >= 0, `STATE_GATE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(bmi >= 0, `BUILD_MODE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(
+      bmi > sgi,
+      `BUILD_MODE_INSTRUCTION must appear AFTER STATE_GATE_INSTRUCTION in ${file.relativePath}; got SGI@${sgi}, BMI@${bmi}`,
+    );
+  }
 });

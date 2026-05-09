@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { transform } from '../lib/format/append-markers.js';
 import { MARKER_BEGIN_PREFIX, MARKER_END } from '../lib/markers.js';
-import { STATE_GATE_INSTRUCTION } from '../lib/state-gate-instruction.js';
+import { STATE_GATE_INSTRUCTION, BUILD_MODE_INSTRUCTION } from '../lib/state-gate-instruction.js';
 
 function makeSkill(id, name = id) {
   return {
@@ -97,17 +97,45 @@ test('append-markers.state-gate-prologue-byte-equal-inside-marker-block', () => 
   // Single-source assertion: the prologue inside the wrapped block is
   // byte-equal to the STATE_GATE_INSTRUCTION export. Order check confirms
   // the prologue lives INSIDE the BEGIN/END marker block so stripBlock
-  // removes it on uninstall.
+  // removes it on uninstall. BUILD_MODE_INSTRUCTION rides along on the
+  // same single-source contract (BUILD-03).
   const out = transform([makeSkill('a'), makeSkill('b')], '0.3.0');
   assert.ok(
     out[0].content.includes(STATE_GATE_INSTRUCTION),
     'STATE_GATE_INSTRUCTION must appear in the wrapped marker block',
   );
+  assert.ok(
+    out[0].content.includes(BUILD_MODE_INSTRUCTION),
+    'BUILD_MODE_INSTRUCTION must appear in the wrapped marker block',
+  );
   const beginIdx = out[0].content.indexOf('<!-- BEGIN 10x-engineer');
   const endIdx = out[0].content.indexOf('<!-- END 10x-engineer');
   const gateIdx = out[0].content.indexOf(STATE_GATE_INSTRUCTION);
+  const buildIdx = out[0].content.indexOf(BUILD_MODE_INSTRUCTION);
   assert.ok(
     beginIdx < gateIdx && gateIdx < endIdx,
     'STATE_GATE_INSTRUCTION must appear INSIDE the BEGIN/END marker block',
   );
+  assert.ok(
+    beginIdx < buildIdx && buildIdx < endIdx,
+    'BUILD_MODE_INSTRUCTION must appear INSIDE the BEGIN/END marker block',
+  );
+});
+
+test('append-markers.build-mode-prologue-follows-state-gate-prologue', () => {
+  // Canonical order (BUILD-03): the state-gate engages first (per-session
+  // enable check), then build-mode applies. Reversing the order would
+  // mean the host runner sees build-mode patterns in a body that has
+  // not yet been gated — defeats the default-off contract.
+  const out = transform([makeSkill('a')], '0.3.0');
+  for (const file of out) {
+    const sgi = file.content.indexOf(STATE_GATE_INSTRUCTION);
+    const bmi = file.content.indexOf(BUILD_MODE_INSTRUCTION);
+    assert.ok(sgi >= 0, `STATE_GATE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(bmi >= 0, `BUILD_MODE_INSTRUCTION not found in ${file.relativePath}`);
+    assert.ok(
+      bmi > sgi,
+      `BUILD_MODE_INSTRUCTION must appear AFTER STATE_GATE_INSTRUCTION in ${file.relativePath}; got SGI@${sgi}, BMI@${bmi}`,
+    );
+  }
 });
