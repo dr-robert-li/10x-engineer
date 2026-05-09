@@ -101,7 +101,7 @@ test('TEST-13 cross-reference integrity: every See Also *.md ref resolves', asyn
     // citation tail contains paper references, not file references), OR
     // a line beginning `_` (italic footer some files might use), OR
     // end-of-file.
-    const seeAlsoMatch = src.match(/^## See Also\s*\n([\s\S]*?)(?=\n## |\nSee also: |\n_|$)/m);
+    const seeAlsoMatch = src.match(/^## See Also\s*\n([\s\S]*?)(?=\n## |\nSee also: |\n_|$(?![\s\S]))/m);
     if (!seeAlsoMatch) continue; // file may not have a See Also section
     const section = seeAlsoMatch[1];
     // Extract every backtick-wrapped *.md basename. Pattern requires
