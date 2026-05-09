@@ -1,6 +1,3 @@
-# Working brief — never committed
-CLAUDE.md
-
 # Planning docs — kept local
 .planning/
 
@@ -11,6 +8,8 @@ legitimate-uses.json
 # Harness configs — these are install TARGETS of the plugin, not artefacts of building it.
 # If any of these appear in a working tree it means the maintainer dogfooded the plugin
 # in the repo; the gitignore prevents accidental commit.
+# Working brief — never committed
+CLAUDE.md
 .claude/
 .cursor/
 .cline/

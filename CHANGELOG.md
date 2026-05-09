@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented in this file. The format is loosely based on Keep a Changelog; the project follows semantic versioning.
 
+## 1.0.2 — 2026-05-10
+
+### Changed
+
+- `.planning/` is no longer tracked in git. The directory was already listed in `.gitignore` per the project's hygiene contract, but historical executor commits force-added phase summaries (`PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`, per-phase `*-SUMMARY.md` files) past the gitignore. Those 14 files are now removed from the index via `git rm -r --cached .planning/` — they remain on local disk and continue to drive the maintainer's planning workflow, but no longer appear in `git ls-files`, do not show up in `git diff` against new clones, and never enter the published tarball (which was always sourced from `package.json` `files` and never included `.planning/`). Net effect on shipped artefacts: zero. Net effect on the repo surface a contributor sees: a much cleaner working tree.
+- README Quick Start gains a compatibility note about persona-shaping plugin collisions. Specifically calls out [caveman](https://github.com/JuliusBrussee/caveman/tree/main) as an opposite-direction terseness persona that touches the same hook surface; recommends keeping one persona plugin engaged at a time. Anchor: commit `6b90f1a`.
+
 ## 1.0.1 — 2026-05-10
 
 ### Fixed
