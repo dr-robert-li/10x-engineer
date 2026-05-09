@@ -1,16 +1,31 @@
 // test/skills.test.js — unit tests for lib/skills.js.
 //
 // loadSkills() is the input-side of every format transform. The shape is
-// LOCKED (D2-30); the count floor moves per phase as the canon grows:
-// 10 (Phase 1) → 11 (Phase 7 build-mode-overview) → 23 (Phase 8 children).
+// LOCKED (D2-30). After the Phase 7 partition, loadSkills() returns ONLY
+// the response-mode set (filenames that do NOT start with `build-`); the
+// build-mode set has its own loader (loadBuildModeSkills) covered by
+// test/skills-loader-build-mode.test.js. The response-mode count stays
+// at 10 across v1.0 — adding build-mode files does not move this floor.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadSkills } from '../lib/skills.js';
 
-test('loadSkills returns at least the Phase 7 floor of canonical entries', async () => {
+test('loadSkills returns exactly the 10 response-mode canonical entries', async () => {
   const skills = await loadSkills();
-  assert.ok(skills.length >= 11, `expected >= 11 skills (Phase 7 floor), got ${skills.length}`);
+  assert.equal(skills.length, 10, `expected exactly 10 response-mode skills, got ${skills.length}`);
+  // No build-mode skill leaks through. `build-system-from-scratch` is the
+  // Phase 1 response-mode skill whose filename collides with the build-*
+  // prefix; it stays in the response-mode set.
+  const RESPONSE_MODE_PREFIX_COLLISIONS = new Set(['build-system-from-scratch']);
+  for (const s of skills) {
+    if (s.id.startsWith('build-')) {
+      assert.ok(
+        RESPONSE_MODE_PREFIX_COLLISIONS.has(s.id),
+        `loadSkills leaked unexpected build-mode skill: ${s.id}`,
+      );
+    }
+  }
 });
 
 test('every skill has the canonical shape', async () => {

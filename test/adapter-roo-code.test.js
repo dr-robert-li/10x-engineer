@@ -119,11 +119,13 @@ test('install + uninstall surgical-removal round-trip — user-owned sibling unt
   const installRes = await rooCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  assert.equal(installRes.written.length, 11);
+  assert.equal(installRes.written.length, 10);
 
-  // 11 files materialised at <project>/.roo/rules/10x-engineer/
+  // 10 response-mode files materialised at <project>/.roo/rules/10x-engineer/
+  // (build-mode-overview is routed through BUILD_MODE_INSTRUCTION + persona.txt
+  // — never installed as a standalone .md by per-skill adapters.)
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 11);
+  assert.equal(installed.length, 10);
 
   // Each file's content matches the corresponding skill's transform output
   const sample = await readFile(join(detection.paths.project, `${skills[0].id}.md`), 'utf8');
@@ -165,7 +167,7 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   await rooCode.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
 
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 11, 'expected exactly 11 files after re-install (no duplicates)');
+  assert.equal(installed.length, 10, 'expected exactly 10 files after re-install (no duplicates)');
 });
 
 test('dryRun: true install does not touch disk; parent dir mtime unchanged', async (t) => {
@@ -178,7 +180,7 @@ test('dryRun: true install does not touch disk; parent dir mtime unchanged', asy
   const r = await rooCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 11, 'written array must record would-be paths even with dryRun:true');
+  assert.equal(r.written.length, 10, 'written array must record would-be paths even with dryRun:true');
 
   // No files materialised
   await assert.rejects(readdir(detection.paths.project), { code: 'ENOENT' });
