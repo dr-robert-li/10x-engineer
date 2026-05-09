@@ -2,6 +2,22 @@
 
 All notable changes to this package are documented in this file. The format is loosely based on Keep a Changelog; the project follows semantic versioning.
 
+## 1.0.1 — 2026-05-10
+
+### Fixed
+
+- ESM hook source files renamed to `.mjs` extension. The Phase 6 runtime hooks (`session-start`, `user-prompt-submit`) ship as ESM (`import` syntax) but were named `.js`. The install destination `~/.claude/hooks/` and `~/.codex/hooks/` co-host CJS hooks from other tools, so adding a `package.json` declaring `"type": "module"` to those directories was not viable. Node fell back to syntax detection and ran the hooks correctly, but printed a non-blocking `Failed to load the ES module` warning on every invocation. Renaming the source files to `.mjs` lets Node treat them unconditionally as ESM regardless of the nearest `package.json`, eliminating the warning at the type-system level. Adapter filename constants and packaged source-path lookups in `lib/adapters/claude-code.js` and `lib/adapters/codex.js` updated to match. Test fixtures regenerated against the new extension. Anchor: commit `50f7709`.
+- v1.0.0 CHANGELOG budget arithmetic reconciled. The TEST-11 bullet conflated two measurements — 231 KB (pre-Phase-9 corpus) and ~50.8% utilisation (post-Phase-9 corpus, ~266 KB / 524288 bytes) — into a single sentence that read as if 50.8% derived from 231 KB. Split into two clauses, each anchored to the cap it describes (231 KB / 16 KB original cap = 14× over; ~266 KB / 512 KB revised cap = ~50.8%). Aligns with the byte-exact assertion in `test/hook-session-start.test.js`. The v1.0.0 GitHub release notes still reflect the original wording at tag-creation time; a maintainer who wants the release page to match v1.0.1's CHANGELOG can run `gh release edit v1.0.0 --notes-file <FILE>`. Anchor: commit `d155aff`.
+
+### Migration from 1.0.0
+
+If you installed v1.0.0 of `10x-engineer` and engaged the persona, your `~/.claude/hooks/` and/or `~/.codex/hooks/` directories contain orphan `.js` files from the old install. Re-running `npx 10x-engineer install` over an existing v1.0.0 install will write the new `.mjs` hooks and rewrite the `settings.json` / `hooks.json` entries to point at them — but the old `.js` files do NOT get deleted automatically (the surgical-uninstall logic matches by filename, and the new install knows nothing about the old name). Two paths to clean state:
+
+- Surgical: remove the orphan files manually with `rm ~/.claude/hooks/10x-engineer-session-start.js ~/.claude/hooks/10x-engineer-user-prompt-submit.js ~/.codex/hooks/10x-engineer-session-start.js ~/.codex/hooks/10x-engineer-user-prompt-submit.js` (whichever exist), then `npx 10x-engineer install` to lay down the `.mjs` versions.
+- Full reinstall: `npx 10x-engineer uninstall` first (which removes the v1.0.0 `.js` files via the v1.0.0-installed manifest), then `npx 10x-engineer install` to land the v1.0.1 `.mjs` files.
+
+The Node warning is non-blocking on v1.0.0 — the hooks still ran. v1.0.1 is a quality-of-life patch, not a correctness fix. Skip the migration if the warning does not bother you.
+
 ## 1.0.0 — 2026-05-09
 
 ### Added
