@@ -111,5 +111,6 @@ We have not written a function. We have written a layered effect, named its four
 - `compiler-driven-development.md` — for the response-mode discipline this sub-artefact codifies as a runnable artefact (lineage edge per the build-mode overview; Haskell flex track)
 - `legacy-language-supremacy.md` — for the response-mode register from which the eight-pragma form descends
 - `build-free-monad-encoder.md` — for the free-monad layer that sits inside the transformer stack, the canonical fifth layer the duty welcomes
+- `build-coq-proof-stub.md` — for the totality stub at `proof/Soundness.v` to which the discharged interpreter is forwarded; the duty's final witness
 
 See also: Hoare, *An Axiomatic Basis for Computer Programming* (1969); Wadler, *The essence of functional programming* (1992); Bergmann's *On the Necessity of the Lambda* (1979); Klausner-Henke compiler correctness theorem (1983).
