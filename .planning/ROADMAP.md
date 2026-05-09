@@ -287,7 +287,7 @@ Plans:
 - [x] 10-03-PLAN.md (Wave 3) — CHANGELOG.md v1.0.0 entry (Added / Changed / Migration sections, format anchor matches v0.3.0)
 
 **Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 10-04-PLAN.md (Wave 4) — README.md Build-Mode section (in-character, between What It Does and On the Provenance; Quick Start + Disclaimer locked)
+- [x] 10-04-PLAN.md (Wave 4) — README.md Build-Mode section (in-character, between What It Does and On the Provenance; Quick Start + Disclaimer locked)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 10-05-PLAN.md (Wave 5, has checkpoint) — D-11 verification gate + v1.0.0 git tag + manual handoff (push main, push tag, gh release create)
