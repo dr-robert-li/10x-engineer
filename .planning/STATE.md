@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Build-Mode Persona
-status: executing
-stopped_at: Phase 10 plan 04 — README Build-Mode section committed (3ac2b0d)
-last_updated: "2026-05-10T07:18:00Z"
-last_activity: 2026-05-10
+status: verifying
+stopped_at: Phase 10 plan 04 complete — README Build-Mode section committed (3ac2b0d); next 10-05 verification gate + v1.0.0 tag + manual handoff
+last_updated: "2026-05-09T21:24:12.596Z"
+last_activity: 2026-05-09
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 30
-  completed_plans: 29
-  percent: 96
+  completed_plans: 30
+  percent: 100
 ---
 
 # Project State
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-05-07)
 
 Phase: 10 (v1-0-release) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute (10-04 complete; next: 10-05 verification gate + v1.0.0 tag + manual handoff)
-Last activity: 2026-05-10
+Status: Phase complete — ready for verification
+Last activity: 2026-05-09
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Last activity: 2026-05-10
 | Phase 10-v1-0-release P10-01 | 13 | 1 task tasks | 3 docs + 2 baselines files |
 | Phase 10-v1-0-release P10-03 | 3 minutes | 1 task | 1 file (CHANGELOG.md +24 lines) |
 | Phase 10-v1-0-release P10-04 | 12 minutes | 1 task | 1 file (README.md +12 lines, Build-Mode 2013 bytes) |
+| Phase 10 P10-05 | 18min | 2 tasks executed tasks | 0 src + 2 docs + 1 tag files |
 
 ## Accumulated Context
 
@@ -106,6 +107,7 @@ Three decisions to surface at Phase 2 entry (recommendations from research, not 
 - [Phase ?]: Phase 10 plan 01: tarball cap raised 150 KB to 175 KB across 4 locked doc lines (REQ-V1-04 line 187, PROJECT.md lines 45 + 75, ROADMAP.md SC#4 line 275); PRE_RELEASE_HEAD=6f7efa549892663f60cdbe8371b7fb8c34c0e7b0 captured to disk under .planning/phases/10-v1-0-release/ as rollback baseline + author-audit range start (D-16 contract); legitimate-uses.json sha256=884cbfa4990f12de93405cbd79c402c6ab088b9344c98dfa8f2facfcda2a84c4 captured to disk as byte-identical baseline for 10-05 Gate 0 (D-12 contract — gitignored file, git-show unavailable, stored hash durable); 3 doc files force-added matching Phase 1-9 SUMMARY precedent. Open observation for follow-up: PROJECT.md line 22 and ROADMAP.md line 268 still read 150 KB and describe current v1.0 state — plan locked exactly 4 lines and would have failed verify if expanded; defer to a successor plan or planner-discretion edit.
 - [Phase 10 plan 10-03]: v1.0.0 CHANGELOG entry committed at ee879a5 — 24 lines / 881 words inserted between line 4 preamble and former-line-5 v0.3.0 heading. v0.3.0 format anchor honoured exactly (single-line dense bullets, multi-paragraph density via long sentences in one bullet); plan's `min_lines: 95` was a soft-wrap estimate, binding constraint was the v0.3.0 anchor shape. All 16 build-mode skill filenames present (1× each), TEST-10..13 + 524288 budget anchor present, D-03 verbatim text present (head/middle/tail clauses), word-choice gate clean (zero `\bagent\b`/`\bassistant\b`/`\bllm\b` hits in v1.0.0 block), vendor-name gate clean (zero `claude`/`anthropic`/`copilot` hits in v1.0.0 block), npm test 378/378, check-tarball clean. REL-V1-02 marked complete in REQUIREMENTS.md.
 - [Phase 10 plan 10-04]: README Build-Mode section committed at 3ac2b0d — 12 insertions / 0 deletions, section size 2013 bytes (inside the 1500–2048 D-08 budget after three trim iterations from initial 2220 bytes). D-05 placement honoured (between line-64 What It Does and now-line-95 On the Provenance); D-06 voice continuous with the README body, no plain-English break, no fourth-wall, no emoji; D-07 three categories enumerated by names matching CHANGELOG (project scaffolders, sub-artefact patterns, docs generators); D-08 size in budget. Locked sections byte-identical pre/post: Quick Start 960=960, Disclaimer 1622=1622. Disclaimer remains last H2 at line 237. Word-choice gate clean inside section (zero `\bagent\b`/`\bassistant\b`/`\bllm\b`/`\bmodel\b` hits); vendor-name gate clean (zero `claude`/`anthropic`/`copilot`/`gemini`/`codex`/`cursor`/`aider`/`cline` hits). npm test 378/378, check-tarball clean. REL-V1-05 marked complete in REQUIREMENTS.md.
+- [Phase ?]: Phase 10 plan 10-05: All 6 D-11 gates PASS; v1.0.0 annotated tag on ab3a2d0; tarball 143.6 kB; author audit clean (7 commits); UNDR-V1-03 byte-identical baseline holds at sha256 884cbfa4...a2a84c4. v1.0 milestone locally complete pending user handoff (push main + push tag + gh release create).
 
 ### Pending Todos
 
@@ -133,7 +135,7 @@ None yet. Five RELEASE-BLOCKER bugs in the locked `lib/markers.js` interface are
 
 ## Session Continuity
 
-Last session: 2026-05-10T07:18:00Z
+Last session: 2026-05-09T21:24:07.253Z
 Stopped at: Phase 10 plan 04 complete — README Build-Mode section committed (3ac2b0d); next 10-05 verification gate + v1.0.0 tag + manual handoff
 Resume file: 
 None

@@ -183,16 +183,16 @@
 
 - [x] **REL-V1-01** — `package.json` version bump 0.3.0 → 1.0.0 (semver major: build-mode is a new product surface, justifies major).
 - [x] **REL-V1-02** — `CHANGELOG.md` 1.0.0 entry in maintainer voice, matches v0.3.0 format. Highlights: build-mode persona, project scaffolders, sub-artefacts library, README/docs generator. Migration note: build-mode is engaged-by-default once persona is engaged (no separate toggle); to opt out of build-mode while keeping response-mode, document the route.
-- [ ] **REL-V1-03** — `npm run check-tarball` passes on local maintainer machine (with forbidden-fingerprints.txt + legitimate-uses.json present).
+- [x] **REL-V1-03** — `npm run check-tarball` passes on local maintainer machine (with forbidden-fingerprints.txt + legitimate-uses.json present).
 - [x] **REL-V1-04** — `npm pack --dry-run` succeeds; tarball stays under 175 KB despite ≥15 new skill files.
 - [x] **REL-V1-05** — README updates: add "Build-Mode" section to body documenting that the persona now produces artefacts, not just prose. Quick Start unchanged. Disclaimer unchanged (locked).
-- [ ] **REL-V1-06** — Git tag `v1.0.0` created locally; `git push origin main` + `git push origin v1.0.0`; GitHub release published. All commits authored as `dr-robert-li <dr.robert.li.au@gmail.com>` with no agent-attribution trailers.
+- [x] **REL-V1-06** — Git tag `v1.0.0` created locally; `git push origin main` + `git push origin v1.0.0`; GitHub release published. All commits authored as `dr-robert-li <dr.robert.li.au@gmail.com>` with no agent-attribution trailers.
 
 ### Undercover-Mode (UNDR-V1)
 
 - [x] **UNDR-V1-01** — Every new skill file in `skills/build-*.md` passes the forbidden-fingerprints grep with zero hits. Persona text MAY use language-and-tool names as targets of ridicule (e.g., "JavaScript", "npm", "make") but MUST NOT name any agent vendor (`Claude`, `Anthropic`, `OpenAI`, `Cursor AI`, `Copilot`, `Gemini`, `Codex`, `Aider`, `Cline`) or any LLM-related self-reference (`AI`, `LLM`, `agent`, `assistant`, `model`).
 - [x] **UNDR-V1-02** — Hook payload extensions in `lib/hooks/session-start.js` and `lib/hooks/user-prompt-submit.js` add NO new agent-fingerprint strings to source. Build-mode skill text loaded at runtime is treated as data and does not affect the file-level grep.
-- [ ] **UNDR-V1-03** — `legitimate-uses.json` does NOT need to be modified for v1.0 (deterministic ZERO_HITS contract maintained). If any v1.0 source file requires an allowlist entry, the architectural contract is to fix the source — not expand the allowlist.
+- [x] **UNDR-V1-03** — `legitimate-uses.json` does NOT need to be modified for v1.0 (deterministic ZERO_HITS contract maintained). If any v1.0 source file requires an allowlist entry, the architectural contract is to fix the source — not expand the allowlist.
 
 ### Strict Enforcement via Hooks (HOOK)
 
@@ -382,11 +382,11 @@ Every v1 REQ-ID maps to exactly one phase. Total: **96 REQ-IDs** across 5 phases
 | TEST-13 | Phase 9 | Complete |
 | REL-V1-01 | Phase 10 | Pending |
 | REL-V1-02 | Phase 10 | Pending |
-| REL-V1-03 | Phase 10 | Pending |
+| REL-V1-03 | Phase 10 | Complete |
 | REL-V1-04 | Phase 10 | Complete |
 | REL-V1-05 | Phase 10 | Complete |
-| REL-V1-06 | Phase 10 | Pending |
-| UNDR-V1-03 | Phase 10 | Pending |
+| REL-V1-06 | Phase 10 | Complete |
+| UNDR-V1-03 | Phase 10 | Complete |
 
 ### Coverage Summary
 
