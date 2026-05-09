@@ -4,8 +4,11 @@
 // skills/*.md without throwing. Phase 1 shipped 10 skills; Phase 7 added
 // the build-mode voice anchor (build-mode-overview.md); Phase 8 added
 // 12 child build-* files (one per response-mode skill plus a project-tree
-// template). The lockdown is structural (every skill parses, every key
-// present, body substantive) — the count floor moves with each phase.
+// template); Phase 9 added 3 docs-generator build-* files (DOCS-01..03).
+// The lockdown is structural (every skill parses, every key present, body
+// substantive) — the count floor is computed dynamically from
+// `loadSkills().length + loadBuildModeSkills().length` so future
+// milestones automatically pick up the same invariant.
 // If the parser rejects a real skill, the parser is wrong (not the skill).
 
 import { test } from 'node:test';
@@ -18,16 +21,21 @@ import {
   stringifyFrontmatter,
   FrontmatterParseError,
 } from '../lib/frontmatter.js';
+import { loadSkills, loadBuildModeSkills } from '../lib/skills.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const skillsDir = join(here, '..', 'skills');
 
 test('parser accepts every shipped skill file (D2-30 lockdown)', async () => {
   const files = (await readdir(skillsDir)).filter(f => f.endsWith('.md'));
-  // Floor moves per phase: 10 (Phase 1) → 11 (Phase 7 adds build-mode-overview)
-  // → 23 (Phase 8 adds 12 build-* children). Assert the current floor and
-  // every file parses; the structural invariant is what is locked.
-  assert.ok(files.length >= 23, `expected >= 23 skill files (Phase 8 closure: 10 response-mode + 1 keystone + 12 build-mode), got ${files.length}`);
+  // Floor is computed from the loader partitions rather than a hand-bumped
+  // literal: response-mode skills + build-mode skills sum to the expected
+  // floor. Catches removal (count drops below the partition sum), never
+  // falsely fails when adding files (loaders pick the new file up too).
+  const [responseSkills, buildSkills] = await Promise.all([loadSkills(), loadBuildModeSkills()]);
+  const expectedFloor = responseSkills.length + buildSkills.length;
+  assert.ok(files.length >= expectedFloor,
+    `expected >= ${expectedFloor} skill files (loadSkills ${responseSkills.length} + loadBuildModeSkills ${buildSkills.length}), got ${files.length}`);
   for (const file of files) {
     const src = await readFile(join(skillsDir, file), 'utf8');
     const { data, body } = parseFrontmatter(src);
