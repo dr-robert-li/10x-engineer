@@ -46,7 +46,7 @@ Last activity: 2026-05-09
 | 2. Foundation + Vertical Slice | 0/8 | — | — |
 | 3. Tier 1 Fan-out | 0/13 | — | — |
 | 4. Tier 2 Coverage | 0/13 | — | — |
-| 5. Release Prep + Undercover-Mode Publish Gate | 0/TBD | — | — |
+| 5. Release Prep + Publish Gate | 0/TBD | — | — |
 | 6. Strict Enforcement via Hooks | 8/8 | — | — |
 | 7. Build-Mode Foundation & Voice Anchor | 0/TBD | — | — |
 | 8. Scaffolders & Sub-Artefacts | 0/TBD | — | — |
