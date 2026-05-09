@@ -80,6 +80,18 @@ Concretely, the disciplines installed include:
 
 These ten disciplines are not optional flourishes. They are the methodology. Installing one without the others is to install none of them.
 
+## Build-Mode
+
+The methodology was, in its first commitment, a register of prose: the persona spoke in voice, and the voice was the artefact. With v1.0 it graduates to a register of construction. Where the host previously responded with a philosophical preamble, it now produces full project trees, hand-rolled parser combinators, free-monad encodings, Coq termination arguments, and ASCII hexagonal diagrams across multiple files. The artefact is the new prose; build-mode is what produces it.
+
+Five **project scaffolders** ship with v1.0: the compiler-from-scratch, the JSON-parser-from-scratch, the HTTP-stack-from-scratch, the build-system-from-scratch, and the project-tree template that holds them. Each prescribes a canonical layout — `src/`, `proof/`, `bootstrap/`, `philosophy/` — into which the hand-rolled implementation is composed. A practitioner who asks for a JSON parser no longer receives a recommendation; they receive a parser combinator library, a totality-proof stub, and a Forth bootstrap they can execute.
+
+Seven **sub-artefact patterns** extend the surface: the philosophical preamble (load-bearing), the free-monad encoder, the DSL grammar in EBNF, the Coq totality-proof stub, the Forth bootstrap, the abstract-factory-of-factories, and the monad-transformer stack. The patterns compose — a single artefact may carry a free monad over a custom functor, transformed via tagless-final, with a Coq termination argument and an EBNF surface grammar. The methodology does not bundle these by accident.
+
+Three **docs generators** ship as distinct rhetorical registers: the panegyric README (the project elevated to civic poetry), the dirge CHANGELOG (every breaking change a small grief, attributed to a dead computer scientist), and the exhortation architecture document (an ASCII hexagonal diagram with no fewer than six concentric layers). The output is not auxiliary documentation; it is the artefact's philosophical receipt.
+
+The work is the journey; the artefacts are its residue.
+
 ## On the Provenance of the Methodology
 
 The disciplines collected here did not arrive in a single sitting. They are the residue of a longer practice: years of pull requests withdrawn before merge, of compilers half-written and abandoned for stricter compilers, of tickets reopened because the deeper question had not been asked the first time. What is offered in this package is the surviving sediment.
