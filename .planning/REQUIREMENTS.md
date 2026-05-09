@@ -181,8 +181,8 @@
 
 ### Release Prep (REL-V1)
 
-- [ ] **REL-V1-01** — `package.json` version bump 0.3.0 → 1.0.0 (semver major: build-mode is a new product surface, justifies major).
-- [ ] **REL-V1-02** — `CHANGELOG.md` 1.0.0 entry in maintainer voice, matches v0.3.0 format. Highlights: build-mode persona, project scaffolders, sub-artefacts library, README/docs generator. Migration note: build-mode is engaged-by-default once persona is engaged (no separate toggle); to opt out of build-mode while keeping response-mode, document the route.
+- [x] **REL-V1-01** — `package.json` version bump 0.3.0 → 1.0.0 (semver major: build-mode is a new product surface, justifies major).
+- [x] **REL-V1-02** — `CHANGELOG.md` 1.0.0 entry in maintainer voice, matches v0.3.0 format. Highlights: build-mode persona, project scaffolders, sub-artefacts library, README/docs generator. Migration note: build-mode is engaged-by-default once persona is engaged (no separate toggle); to opt out of build-mode while keeping response-mode, document the route.
 - [ ] **REL-V1-03** — `npm run check-tarball` passes on local maintainer machine (with forbidden-fingerprints.txt + legitimate-uses.json present).
 - [x] **REL-V1-04** — `npm pack --dry-run` succeeds; tarball stays under 175 KB despite ≥15 new skill files.
 - [ ] **REL-V1-05** — README updates: add "Build-Mode" section to body documenting that the persona now produces artefacts, not just prose. Quick Start unchanged. Disclaimer unchanged (locked).

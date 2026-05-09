@@ -281,10 +281,10 @@ Plans:
 - [x] 10-01-PLAN.md (Wave 1) — Tarball cap raise to 175 KB (REQUIREMENTS.md + PROJECT.md + ROADMAP.md success criterion #4) + PRE_RELEASE_HEAD capture
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 10-02-PLAN.md (Wave 2) — package.json version bump 0.3.0 → 1.0.0
+- [x] 10-02-PLAN.md (Wave 2) — package.json version bump 0.3.0 → 1.0.0
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 10-03-PLAN.md (Wave 3) — CHANGELOG.md v1.0.0 entry (Added / Changed / Migration sections, format anchor matches v0.3.0)
+- [x] 10-03-PLAN.md (Wave 3) — CHANGELOG.md v1.0.0 entry (Added / Changed / Migration sections, format anchor matches v0.3.0)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 10-04-PLAN.md (Wave 4) — README.md Build-Mode section (in-character, between What It Does and On the Provenance; Quick Start + Disclaimer locked)
