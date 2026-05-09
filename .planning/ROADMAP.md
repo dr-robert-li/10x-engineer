@@ -174,7 +174,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Build-Mode Foundation & Voice Anchor | 5/5 | Complete   | 2026-05-09 |
 | 8. Scaffolders & Sub-Artefacts | 13/13 | Complete   | 2026-05-09 |
 | 9. Docs Generators & Verification Gate | 7/7 | Complete    | 2026-05-09 |
-| 10. v1.0 Release | 0/TBD | Not started | - |
+| 10. v1.0 Release | 1/5 | In Progress|  |
 
 ### Phase 6: Strict Enforcement via Hooks
 **Goal**: Persona enforcement strength matches the caveman pattern — SessionStart hook injects the full ruleset as hidden system context, UserPromptSubmit hook re-anchors per turn, and a persistent flag file gates both — but **only while `~/.10x-engineer/state.json` is `enabled: true`**. Fresh install must never auto-engage: the install flow writes `enabled: false` (or an equivalent default-off semantic) so an install-then-walk-away user gets zero behavior change. Engaging the persona is always an explicit act (`/10x-engineer-enable`, "enable 10x-engineer", or hand-editing the state file). Coverage extends across Claude Code (full hook system), Codex CLI (`.codex/hooks.json` parallel), and Gemini CLI (no hook system → static instruction at the top of `GEMINI.md` that tells the model to read the state file before applying any persona rule). Cursor / Windsurf / Cline / Copilot keep their existing always-on rule shape; the state-file gate is documented inline in each rule body.
@@ -278,7 +278,7 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 10-01-PLAN.md (Wave 1) — Tarball cap raise to 175 KB (REQUIREMENTS.md + PROJECT.md + ROADMAP.md success criterion #4) + PRE_RELEASE_HEAD capture
+- [x] 10-01-PLAN.md (Wave 1) — Tarball cap raise to 175 KB (REQUIREMENTS.md + PROJECT.md + ROADMAP.md success criterion #4) + PRE_RELEASE_HEAD capture
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 10-02-PLAN.md (Wave 2) — package.json version bump 0.3.0 → 1.0.0
