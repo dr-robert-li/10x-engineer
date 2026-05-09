@@ -119,14 +119,14 @@ test('cursor adapter: install+uninstall surgical-removal — user-owned sibling 
   const installRes = await cursor.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  assert.equal(installRes.written.length, 10, 'expected exactly 10 .mdc files written');
+  assert.equal(installRes.written.length, 11, 'expected exactly 11 .mdc files written');
   for (const p of installRes.written) {
     assert.match(p, /\.mdc$/, `expected .mdc extension on every written path, got ${p}`);
   }
 
-  // 10 files materialised at <cursor/rules/10x-engineer>/
+  // 11 files materialised at <cursor/rules/10x-engineer>/
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 10);
+  assert.equal(installed.length, 11);
   for (const f of installed) {
     assert.match(f, /\.mdc$/);
   }
@@ -174,7 +174,7 @@ test('cursor adapter: install is idempotent — re-running does not duplicate fi
   await cursor.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
 
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 10, 'expected exactly 10 files after re-install (no duplicates)');
+  assert.equal(installed.length, 11, 'expected exactly 11 files after re-install (no duplicates)');
 });
 
 test('cursor adapter: dryRun:true does not touch disk; pre-existing sentinel mtime unchanged', async (t) => {
@@ -191,7 +191,7 @@ test('cursor adapter: dryRun:true does not touch disk; pre-existing sentinel mti
   const r = await cursor.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 10, 'written array must record would-be paths even with dryRun:true');
+  assert.equal(r.written.length, 11, 'written array must record would-be paths even with dryRun:true');
 
   // No files materialised at the install dir
   await assert.rejects(readdir(detection.paths.project), { code: 'ENOENT' });

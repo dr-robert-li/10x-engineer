@@ -96,11 +96,11 @@ test('install + uninstall surgical-removal round-trip — user-owned sibling unt
   const installRes = await cline.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  assert.equal(installRes.written.length, 10);
+  assert.equal(installRes.written.length, 11);
 
-  // 10 files materialised at <project>/.clinerules/10x-engineer/
+  // 11 files materialised at <project>/.clinerules/10x-engineer/
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 10);
+  assert.equal(installed.length, 11);
 
   // Each file's content matches the corresponding skill's transform output
   const sample = await readFile(join(detection.paths.project, `${skills[0].id}.md`), 'utf8');
@@ -142,7 +142,7 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   await cline.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
 
   const installed = (await readdir(detection.paths.project)).sort();
-  assert.equal(installed.length, 10, 'expected exactly 10 files after re-install (no duplicates)');
+  assert.equal(installed.length, 11, 'expected exactly 11 files after re-install (no duplicates)');
 });
 
 test('dryRun:true does not touch disk; parent dir mtime unchanged', async (t) => {
@@ -155,7 +155,7 @@ test('dryRun:true does not touch disk; parent dir mtime unchanged', async (t) =>
   const r = await cline.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 10, 'written array must record would-be paths even with dryRun:true');
+  assert.equal(r.written.length, 11, 'written array must record would-be paths even with dryRun:true');
 
   // No files materialised
   await assert.rejects(readdir(detection.paths.project), { code: 'ENOENT' });

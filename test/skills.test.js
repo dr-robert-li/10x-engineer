@@ -1,15 +1,16 @@
 // test/skills.test.js — unit tests for lib/skills.js.
 //
-// loadSkills() is the input-side of every format transform. The shape and
-// the count are LOCKED against the 10 Phase 1 skill files (D2-30).
+// loadSkills() is the input-side of every format transform. The shape is
+// LOCKED (D2-30); the count floor moves per phase as the canon grows:
+// 10 (Phase 1) → 11 (Phase 7 build-mode-overview) → 23 (Phase 8 children).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadSkills } from '../lib/skills.js';
 
-test('loadSkills returns 10 canonical entries', async () => {
+test('loadSkills returns at least the Phase 7 floor of canonical entries', async () => {
   const skills = await loadSkills();
-  assert.equal(skills.length, 10, 'expected exactly 10 skills (Phase 1 lockdown)');
+  assert.ok(skills.length >= 11, `expected >= 11 skills (Phase 7 floor), got ${skills.length}`);
 });
 
 test('every skill has the canonical shape', async () => {
@@ -25,11 +26,11 @@ test('every skill has the canonical shape', async () => {
   }
 });
 
-test('skill.id equals skill.name for every Phase 1 skill', async () => {
-  // The Phase 1 lockdown is that filename basename = frontmatter `name`.
+test('skill.id equals skill.name for every shipped skill', async () => {
+  // The lockdown is that filename basename = frontmatter `name`.
   // If this test ever fails, EITHER the skill's frontmatter `name` was changed
-  // (Phase 1 contract violation — revert) OR a new skill was added without
-  // matching its filename (fix the new skill).
+  // (contract violation — revert) OR a new skill was added without matching
+  // its filename (fix the new skill).
   const skills = await loadSkills();
   for (const s of skills) {
     assert.equal(s.id, s.name, `id (${s.id}) must equal name (${s.name})`);

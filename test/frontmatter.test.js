@@ -1,8 +1,11 @@
 // test/frontmatter.test.js — unit tests for lib/frontmatter.js.
 //
-// D2-30 lockdown: the parser must accept every one of the 10 real
-// Phase 1 skill files in skills/*.md without throwing. The skills are LOCKED.
-// If the parser rejects a real skill, the parser is wrong (not the skill).
+// D2-30 lockdown: the parser must accept every real skill file in
+// skills/*.md without throwing. Phase 1 shipped 10 skills; Phase 7 adds
+// the build-mode voice anchor and Phase 8 will add 12 child build-* files.
+// The lockdown is structural (every skill parses, every key present, body
+// substantive) — the count floor moves with each phase. If the parser
+// rejects a real skill, the parser is wrong (not the skill).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -18,9 +21,12 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const skillsDir = join(here, '..', 'skills');
 
-test('parser accepts every Phase 1 skill file (D2-30 lockdown)', async () => {
+test('parser accepts every shipped skill file (D2-30 lockdown)', async () => {
   const files = (await readdir(skillsDir)).filter(f => f.endsWith('.md'));
-  assert.equal(files.length, 10, 'expected exactly 10 skill files');
+  // Floor moves per phase: 10 (Phase 1) → 11 (Phase 7 adds build-mode-overview)
+  // → 23 (Phase 8 adds 12 build-* children). Assert the current floor and
+  // every file parses; the structural invariant is what is locked.
+  assert.ok(files.length >= 11, `expected >= 11 skill files (Phase 7 floor), got ${files.length}`);
   for (const file of files) {
     const src = await readFile(join(skillsDir, file), 'utf8');
     const { data, body } = parseFrontmatter(src);

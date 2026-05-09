@@ -95,12 +95,13 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
   const installRes = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: false,
   });
-  // Phase 6: 14 prior + 2 hook scripts + 1 persona.txt + 1 settings.json patch = 18.
-  assert.equal(installRes.written.length, 18);
+  // Phase 7: 11 skills (10 Phase-1 + build-mode-overview) + 3 commands +
+  // 1 output style + 2 hook scripts + 1 persona.txt + 1 settings.json patch = 19.
+  assert.equal(installRes.written.length, 19);
 
-  // 10 skill files materialised at <skills/10x-engineer>/
+  // 11 skill files materialised at <skills/10x-engineer>/
   const installed = (await readdir(detection.paths.global)).sort();
-  assert.equal(installed.length, 10);
+  assert.equal(installed.length, 11);
 
   // All three slash command files materialised at <commands/<id>.md>
   const commandsDir = join(env.homedir, '.claude/commands');
@@ -233,7 +234,7 @@ test('install is idempotent: re-running does not duplicate files', async (t) => 
   await claudeCode.install({ skills, scope: detection.scope, paths: detection.paths, dryRun: false });
 
   const installed = (await readdir(detection.paths.global)).sort();
-  assert.equal(installed.length, 10, 'expected exactly 10 files after re-install (no duplicates)');
+  assert.equal(installed.length, 11, 'expected exactly 11 files after re-install (no duplicates)');
 
   // Slash command files remain three single artefacts — re-install replaces in place.
   const commandsDir = join(env.homedir, '.claude/commands');
@@ -269,8 +270,8 @@ test('dryRun:true does not touch disk; mtime on parent dir unchanged', async (t)
   const r = await claudeCode.install({
     skills, scope: detection.scope, paths: detection.paths, dryRun: true,
   });
-  assert.equal(r.written.length, 18,
-    'written array must record would-be paths (10 skills + 3 commands + 1 output style + 2 hooks + 1 persona + 1 settings) even with dryRun:true');
+  assert.equal(r.written.length, 19,
+    'written array must record would-be paths (11 skills + 3 commands + 1 output style + 2 hooks + 1 persona + 1 settings) even with dryRun:true');
 
   // No skill files materialised
   await assert.rejects(readdir(detection.paths.global), { code: 'ENOENT' });
