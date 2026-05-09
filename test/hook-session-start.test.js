@@ -22,6 +22,8 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { loadSkills, loadBuildModeSkills } from '../lib/skills.js';
+import { buildPersonaText } from '../lib/adapters/helpers/persona-builder.js';
 
 const HOOK_PATH = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'session-start.js');
 const SOURCE_TREE_PERSONA = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'persona.txt');
@@ -138,4 +140,32 @@ test('session-start: enabled:true with PERSONA_FILE pointing at populated temp-f
 test('TEST-07 invariant: source-tree lib/hooks/persona.txt MUST NOT exist after the engaged test', () => {
   assert.equal(existsSync(SOURCE_TREE_PERSONA), false,
     'TEST-07: the engaged test used PERSONA_FILE override into a temp dir; source-tree persona.txt must remain absent');
+});
+
+// ---------------------------------------------------------------------------
+// TEST-11 — combined SessionStart persona payload size budget.
+//
+// The hook emits the persona.txt content to stdout when `enabled:true` AND
+// PERSONA_FILE points at the assembled persona. The persona is the
+// concatenation of the response-mode partition and the build-mode partition
+// produced by buildPersonaText() — the same single-source assembler the
+// installer's persona-builder uses at install time. The 512 KB budget caps
+// runaway growth (≥2× current size) without forbidding the parody-as-designed
+// bloat that the 10x-engineer corpus is built around.
+//
+// Empirical baseline at Phase 9 entry: ~231 KB (23 skill files). Phase 9
+// closes at ~261 KB (26 skill files). The 512 KB budget caps at ~50 average
+// files with v2 headroom.
+// ---------------------------------------------------------------------------
+
+test('TEST-11 persona payload: combined SessionStart stdout < 512 KB (524288 bytes)', async () => {
+  const personaText = buildPersonaText(
+    await loadSkills(),
+    await loadBuildModeSkills(),
+  );
+  const sizeBytes = Buffer.byteLength(personaText, 'utf8');
+  assert.ok(
+    sizeBytes < 524288,
+    `persona.txt is ${sizeBytes} bytes; budget is 524288 (512 KB)`,
+  );
 });
