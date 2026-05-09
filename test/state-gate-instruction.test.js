@@ -66,3 +66,56 @@ test('all three exports: zero forbidden-fingerprint hits (UNDR-V1-02)', () => {
     assert.equal(hit, null, `forbidden fingerprint in ${name}: ${hit && hit[0]}`);
   }
 });
+
+// ---
+// TEST-12 locked content snapshots (Phase 9 plan 06).
+//
+// The seven tests above pin export shape, byte-length, anchor sentences, and
+// fingerprint hygiene. The three tests below pin verbatim text fragments at
+// the substring level — the surface that downstream format transforms read
+// when they prepend gate prologues. If any of these substrings drift, every
+// shipped rule body's host-facing contract drifts with them.
+//
+// State-file path and engagement key (STATE_GATE_INSTRUCTION):
+//   - `~/.10x-engineer/state.json` is the path the host reads at runtime.
+//   - `"enabled": true` is the JSON key/value the host checks before
+//     applying any rule below the gate.
+//
+// Build-mode keystone and trigger phrase (BUILD_MODE_INSTRUCTION):
+//   - `skills/build-mode-overview.md` is the catalogue the host consults
+//     when an artefact is requested.
+//   - `tangible artefact` is the trigger phrase that distinguishes
+//     build-mode requests from response-mode requests.
+//
+// Section header (PERSONA_SECTION_SEPARATOR):
+//   - `BUILD-MODE EXTENSIONS` is the in-file divider written between the
+//     response-mode and build-mode halves of persona.txt at install time.
+
+test('TEST-12 locked snapshot: STATE_GATE_INSTRUCTION includes the state-file path and engagement key', () => {
+  assert.ok(
+    STATE_GATE_INSTRUCTION.includes('~/.10x-engineer/state.json'),
+    'STATE_GATE_INSTRUCTION must reference the state file path verbatim',
+  );
+  assert.ok(
+    STATE_GATE_INSTRUCTION.includes('"enabled": true'),
+    'STATE_GATE_INSTRUCTION must reference the engagement key verbatim',
+  );
+});
+
+test('TEST-12 locked snapshot: BUILD_MODE_INSTRUCTION includes the catalogue keystone and trigger phrase', () => {
+  assert.ok(
+    BUILD_MODE_INSTRUCTION.includes('skills/build-mode-overview.md'),
+    'BUILD_MODE_INSTRUCTION must reference the build-mode catalogue verbatim',
+  );
+  assert.ok(
+    BUILD_MODE_INSTRUCTION.includes('tangible artefact'),
+    'BUILD_MODE_INSTRUCTION must contain the trigger phrase verbatim',
+  );
+});
+
+test('TEST-12 locked snapshot: PERSONA_SECTION_SEPARATOR includes the BUILD-MODE EXTENSIONS header text', () => {
+  assert.ok(
+    PERSONA_SECTION_SEPARATOR.includes('BUILD-MODE EXTENSIONS'),
+    'PERSONA_SECTION_SEPARATOR must include the section header verbatim',
+  );
+});
