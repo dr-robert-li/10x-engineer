@@ -43,6 +43,8 @@ disable 10x-engineer
 
 State is persisted to `~/.10x-engineer/state.json` and survives across sessions. To remove the package entirely, run `npx github:dr-robert-li/10x-engineer uninstall`.
 
+**Compatibility note.** `10x-engineer` installs hook scripts and persona injection into the host harness, which means it can collide with other persona-shaping plugins that touch the same hook surface — for example, [caveman](https://github.com/JuliusBrussee/caveman/tree/main) (an opposite-direction terseness persona). Two persona plugins active in the same session can reinforce, contradict, or stack their instructions in undefined ways; settings.json hook entries written by separate installers can also overlap. If you run multiple persona-shaping plugins, keep only one engaged at a time (`/10x-engineer-disable` silences this one without uninstalling), or uninstall whichever you are not using. Conflicts manifest as voice drift, duplicated prologues, or the wrong persona winning a turn.
+
 See the rest of this README for supported harnesses, the methodology in full, and the disclaimer.
 
 ## Preamble
