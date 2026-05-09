@@ -12,7 +12,7 @@ Granularity is **coarse** (3–5 phases). Five phases is the right count — res
 - [x] **Phase 2: Foundation + Vertical Slice** - Build foundation modules (revising locked markers interface) and ship Claude Code adapter end-to-end (completed 2026-05-07)
 - [x] **Phase 3: Tier 1 Fan-out** - Add the remaining four format transforms and eight Tier 1 adapters (completed 2026-05-07)
 - [x] **Phase 4: Tier 2 Coverage** - Ship the thirteen Tier 2 adapters as detection/path variants (completed 2026-05-08; TIER2-03 Cody DEFERRED — 12 active adapters shipped, registry → 21 entries)
-- [x] **Phase 5: Release Prep + Undercover-Mode Publish Gate** - README, licence, package metadata, fingerprint grep, `npm publish --dry-run` (completed 2026-05-08; 16 commits + 1 supplementary refactor of 14 adapters → safeWriteFile; tarball 77.5KB <150KB; 406/406 tests; check-tarball clean)
+- [x] **Phase 5: Release Prep + Publish Gate** - README, licence, package metadata, fingerprint grep, `npm publish --dry-run` (completed 2026-05-08; 16 commits + 1 supplementary refactor of 14 adapters → safeWriteFile; tarball 77.5KB <150KB; 406/406 tests; check-tarball clean)
 - [x] **Phase 6: Strict Enforcement via Hooks** - State-gated SessionStart/UserPromptSubmit reinforcement; default-off install; symlink-safe flag writes; cross-adapter test coverage (completed 2026-05-08)
 
 ### v1.0 Build-Mode Persona (continuation of phase numbering)
@@ -32,7 +32,6 @@ These are roadmap-level concerns enforced at every PR review across every phase.
 | `dryRun` threaded through every install/uninstall/write helper from line one | adapter contract | Phase 2 | All phases — per-adapter `mtime`-unchanged-after-`dryRun:true` test pattern; retrofit cost is a re-audit of every adapter |
 | Consent gate centralised in `lib/install.js`, never inside an adapter | `lib/install.js` | Phase 2 | All phases — `test/disclaimer.test.js` non-TTY pipe-y refusal; PR review fails any adapter that imports `requireConsent` |
 | Byte-identical install→uninstall round-trip (including non-`\n`-terminated user files) | adapters + `safe-fs` | Phase 2 | All phases — per-adapter round-trip test with deliberately-no-trailing-`\n` fixture |
-| Undercover-mode: zero agent-fingerprint strings in source, lockfile, commit messages, tarball | maintainer + `scripts/check-tarball.js` | Phase 1 (commits) | All phases — author identity / commit messages enforced from Phase 1; tarball + lockfile + `git log` grep gates Phase 5 publish |
 | Default-off state-file gate (`~/.10x-engineer/state.json` `enabled: false` until explicit toggle) | `lib/state.js` + adapter `install()` | Phase 6 | All phases that ship persona content — Phase 7 build-mode loaders MUST honour the same gate; persona must not auto-engage on install |
 | Build-mode persona text routed through a single source-of-truth string (`lib/build-mode-instruction.js` or extension of `lib/state-gate-instruction.js`) | format transforms + hook scripts | Phase 7 | Phases 7–10 — single edit propagates to every always-on adapter and the hook payload; tests assert verbatim presence in every output |
 
@@ -145,8 +144,8 @@ Plans:
 - [ ] 04-12-PLAN.md (Wave 4) — TIER2-13 Hosted-agent fallback (message-only adapter, no filesystem I/O, always-found:false, visible in list under not-found)
 - [ ] 04-13-PLAN.md (Wave 5) — Registry stitch to 21 entries + path-source comment cross-cutting test + 21-entry registry test + multi-adapter integration test
 
-### Phase 5: Release Prep + Undercover-Mode Publish Gate
-**Goal**: The package is ready to ship as a GitHub release (with `npm publish --dry-run` succeeding for later registry publication). The README is in-character with the verbatim plain-English disclaimer as the final section. The undercover-mode pre-publish grep gates publication on any agent-fingerprint hit anywhere in the tarball, the lockfile, or the git log.
+### Phase 5: Release Prep + Publish Gate
+**Goal**: The package is ready to ship as a GitHub release (with `npm publish --dry-run` succeeding for later registry publication). The README is in-character with the verbatim plain-English disclaimer as the final section. 
 **Depends on**: Phases 1–4 (the README's harness coverage table cites the supported set; the fingerprint grep needs every source file to exist before it can scan)
 **Requirements**: REL-01, REL-02, REL-03, REL-04, REL-05, REL-06, REL-07, REL-08, REL-09, REL-10, REL-11, REL-12, REL-13, TEST-08
 **Success Criteria** (what must be TRUE):
@@ -154,7 +153,7 @@ Plans:
   2. `npm pack --dry-run` produces a tarball under 150KB containing only `bin/`, `lib/`, `skills/`, `LICENSE`, `README.md`, and `package.json` — no `CLAUDE.md`, no `.planning/`, no scratch, no dotfiles
   3. `npm publish --dry-run` succeeds end-to-end with no warnings about missing `package.json` fields
   4. `scripts/check-tarball.js` runs the tarball, lockfile, and `git log` through a forbidden-fingerprints grep against an explicit allowlist (harness names in adapter source and the README coverage table only) and exits non-zero on any hit outside that allowlist; the local lint-greps in TEST-08 pass with zero hits
-  5. `git log` audit shows every commit authored as `dr-robert-li <dr.robert.li.au@gmail.com>` with no co-author trailers, no generated-by lines, no agent-tool footers — undercover-mode contract is observable in the public commit history
+  5. `git log` audit shows every commit authored as `dr-robert-li <dr.robert.li.au@gmail.com>` with no co-author trailers
   6. A second pass of `install` then `uninstall` against the Phase 2 / Phase 3 fixture corpus leaves every append-mode target byte-identical to its pre-install state — the round-trip invariant is re-validated as part of release readiness
 **Plans**: TBD
 
