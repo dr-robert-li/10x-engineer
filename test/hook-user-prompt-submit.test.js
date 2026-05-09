@@ -12,7 +12,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const HOOK_PATH = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'user-prompt-submit.js');
+const HOOK_PATH = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'user-prompt-submit.mjs');
 
 async function makeHome(t) {
   const root = await mkdtemp(join(tmpdir(), '10xe-hook-ups-'));

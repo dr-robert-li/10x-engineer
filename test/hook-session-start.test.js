@@ -25,7 +25,7 @@ import { existsSync } from 'node:fs';
 import { loadSkills, loadBuildModeSkills } from '../lib/skills.js';
 import { buildPersonaText } from '../lib/adapters/helpers/persona-builder.js';
 
-const HOOK_PATH = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'session-start.js');
+const HOOK_PATH = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'session-start.mjs');
 const SOURCE_TREE_PERSONA = resolve(import.meta.dirname, '..', 'lib', 'hooks', 'persona.txt');
 
 async function makeHome(t) {

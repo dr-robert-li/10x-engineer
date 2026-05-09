@@ -123,20 +123,20 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
 
   // Phase 6: hook scripts copied to .claude/hooks/.
   const hooksDir = join(env.homedir, '.claude/hooks');
-  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.js')), true,
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.mjs')), true,
     'session-start hook script must be installed in .claude/hooks/');
-  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.js')), true,
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.mjs')), true,
     'user-prompt-submit hook script must be installed in .claude/hooks/');
   assert.equal(existsSync(join(hooksDir, 'persona.txt')), true,
     'persona.txt must be written to .claude/hooks/');
 
   // Hook scripts must contain the same source as lib/hooks/* (copyFile-equality).
   const sessionStartSrc = await readFile(
-    new URL('../lib/hooks/session-start.js', import.meta.url).pathname, 'utf8');
+    new URL('../lib/hooks/session-start.mjs', import.meta.url).pathname, 'utf8');
   const sessionStartInstalled = await readFile(
-    join(hooksDir, '10x-engineer-session-start.js'), 'utf8');
+    join(hooksDir, '10x-engineer-session-start.mjs'), 'utf8');
   assert.equal(sessionStartInstalled, sessionStartSrc,
-    'installed session-start hook must be byte-equal to lib/hooks/session-start.js');
+    'installed session-start hook must be byte-equal to lib/hooks/session-start.mjs');
 
   // settings.json patched with our two hook entries.
   const settingsPath = join(env.homedir, '.claude/settings.json');
@@ -190,9 +190,9 @@ test('install + uninstall surgical-removal round-trip (global scope) — user-ow
     'post-uninstall: output style file must be removed');
 
   // Phase 6: hook artefacts removed.
-  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.js')), false,
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-session-start.mjs')), false,
     'post-uninstall: session-start hook must be removed');
-  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.js')), false,
+  assert.equal(existsSync(join(hooksDir, '10x-engineer-user-prompt-submit.mjs')), false,
     'post-uninstall: user-prompt-submit hook must be removed');
   assert.equal(existsSync(join(hooksDir, 'persona.txt')), false,
     'post-uninstall: persona.txt must be removed');

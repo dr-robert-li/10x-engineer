@@ -369,8 +369,8 @@ test('codex Phase 6: install copies hook scripts + persona.txt + patches hooks.j
 
   // The two hook scripts and persona.txt
   const hooksDir = join(env.homedir, '.codex/hooks');
-  const ssPath = join(hooksDir, '10x-engineer-session-start.js');
-  const upsPath = join(hooksDir, '10x-engineer-user-prompt-submit.js');
+  const ssPath = join(hooksDir, '10x-engineer-session-start.mjs');
+  const upsPath = join(hooksDir, '10x-engineer-user-prompt-submit.mjs');
   const personaPath = join(hooksDir, 'persona.txt');
   assert.equal(existsSync(ssPath), true, 'session-start script must exist in .codex/hooks/');
   assert.equal(existsSync(upsPath), true, 'user-prompt-submit script must exist in .codex/hooks/');
@@ -387,7 +387,7 @@ test('codex Phase 6: install copies hook scripts + persona.txt + patches hooks.j
 
   // Hook scripts must be byte-equal to lib/hooks/* sources
   const ssSrc = await readFile(
-    new URL('../lib/hooks/session-start.js', import.meta.url).pathname, 'utf8');
+    new URL('../lib/hooks/session-start.mjs', import.meta.url).pathname, 'utf8');
   assert.equal(await readFile(ssPath, 'utf8'), ssSrc,
     'installed session-start hook must be byte-equal to source');
 
@@ -486,7 +486,7 @@ test('codex Phase 6: dryRun does not create hooks dir or hooks.json', async (t) 
     'hooks.json must not be created on dryRun');
   // written array still records would-be paths
   const wouldBe = r.written.join('\n');
-  assert.match(wouldBe, /10x-engineer-session-start\.js/,
+  assert.match(wouldBe, /10x-engineer-session-start\.mjs/,
     'dryRun written array must include the would-be session-start path');
   assert.match(wouldBe, /hooks\.json/,
     'dryRun written array must include the would-be hooks.json path');
