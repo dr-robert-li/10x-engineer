@@ -1,6 +1,6 @@
 // test/registry-entry.test.js — adapter registry shape lock.
 //
-// Pins the adapter registry at the canonical 11 entries in locked
+// Pins the adapter registry at the canonical 12 entries in locked
 // alphabetical-by-id order. Cody and the legacy Tier 2 adapters are
 // DEFERRED; the registry MUST NOT contain them.
 //
@@ -24,14 +24,15 @@ const EXPECTED_IDS = [
   'continue',
   'cursor',
   'gemini',
+  'hermes-agent',
   'hosted-fallback',
   'kilo-code',
   'opencode',
   'roo-code',
 ];
 
-test('registry: length === 11', () => {
-  assert.equal(adapters.length, 11);
+test('registry: length === 12', () => {
+  assert.equal(adapters.length, 12);
 });
 
 test('registry: id-array matches locked alphabetical order', () => {

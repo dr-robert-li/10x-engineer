@@ -87,6 +87,7 @@ async function synthFixture(adapter, tmpRoot) {
     case 'continue':      await mk('.continue'); break;
     case 'cursor':        await mk('.cursor'); break;
     case 'gemini':        await mk('.gemini'); break;
+    case 'hermes-agent':  await mkH('.hermes'); break;
     case 'kilo-code':     await mk('.kilocode'); break;
     case 'opencode':      await mkH('.config', 'opencode'); break;
     case 'roo-code':      await mk('.roo'); break;

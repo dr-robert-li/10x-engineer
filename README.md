@@ -124,7 +124,7 @@ If that is the practitioner reading this, what follows is for them.
 
 ## Supported Harnesses
 
-The installer covers eleven harnesses, organised into two tiers by the maturity of their native rule or skill systems. Tier 1 harnesses receive the methodology in their native rule format. Tier 2 harnesses receive a concatenated bundle written into the location their documentation recognises, with begin/end markers so uninstall is surgical.
+The installer covers twelve harnesses, organised into two tiers by the maturity of their native rule or skill systems. Tier 1 harnesses receive the methodology in their native rule format. Tier 2 harnesses receive a concatenated bundle written into the location their documentation recognises, with begin/end markers so uninstall is surgical.
 
 The order below mirrors the registry ordering — alphabetical by adapter id — so that detection output and table cross-reference cleanly.
 
@@ -137,12 +137,21 @@ The order below mirrors the registry ordering — alphabetical by adapter id —
 | Continue                       | Tier 1 | concat-md       | Supported |
 | Cursor                         | Tier 1 | mdc             | Supported |
 | Gemini CLI                     | Tier 1 | append-markers  | Supported |
+| Hermes Agent                   | Tier 1 | hermes-skills   | Supported |
 | Hosted agent (manual install)  | Tier 2 | message-only    | Supported |
 | Kilo Code                      | Tier 1 | native-skills   | Supported |
 | opencode                       | Tier 1 | mixed-mode      | Supported |
 | Roo Code                       | Tier 2 | native-skills   | Supported |
 
 Coverage is exhaustive within the first commitment of the project. Where a harness does not appear in this table, it is not because the harness has been overlooked; it is because its support is the proper subject of a future engagement.
+
+### Provider and runtime routing
+
+`10x-engineer` installs persona, rule, skill, and command files. It does not call model APIs directly, so model providers are configured in the harness you run underneath it.
+
+- **OpenRouter.** Use the supported harness' OpenRouter integration, then install `10x-engineer` into that harness. OpenRouter documents direct setup for coding agents such as Codex CLI and Claude Code, and its Agent SDK can consume the persona through `npx 10x-engineer print` when you are building a custom agent harness.
+- **Ollama MLX.** Ollama's MLX preview accelerates coding-agent workloads on Apple Silicon. Use `ollama launch` to configure Claude Code, opencode, Codex, or another supported coding tool against an Ollama local or cloud model, then run this installer for the same harness.
+- **Hermes Agent.** The Hermes adapter installs three global skills under `~/.hermes/skills/personas/`: `/10x-engineer`, `/10x-engineer-enable`, and `/10x-engineer-disable`. It deliberately leaves `SOUL.md` alone because Hermes treats that file as the durable identity for the whole instance.
 
 ## Installation
 
@@ -216,7 +225,7 @@ That said: the methodology, once experienced, tends to remain. The disciplines o
 
 ## On Coverage and the Future
 
-Eleven harnesses are covered in the table above. The choice of which to support, and which to defer, is itself an act of opinion. The covered set was chosen because each member exposes a documented, marker-friendly location for project-level or user-level instructions; the deferred members are deferred because their conventions are not yet stable enough to write against without the kind of fragile heuristics this project refuses to ship.
+Twelve harnesses are covered in the table above. The choice of which to support, and which to defer, is itself an act of opinion. The covered set was chosen because each member exposes a documented, marker-friendly location for project-level or user-level instructions; the deferred members are deferred because their conventions are not yet stable enough to write against without the kind of fragile heuristics this project refuses to ship.
 
 When a harness's surface stabilises — when its native rules system documents a path that does not change between point releases — it joins the table. Until then, the universal `print` and `export` subcommands serve as a bridge: the methodology can be paste-installed anywhere, by hand, in the way our predecessors installed every methodology they ever adopted.
 
